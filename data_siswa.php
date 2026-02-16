@@ -78,6 +78,8 @@ include "sidebar.php";
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
             DataTable Example
+            <input type="file" name="import" class="form-control form-control-fm float-end">Import >
+            <button type="submit" name="tambah" class="btn btn-primary float-end"><i class="fa-solid fa-user-plus"></i>Tambah </button>
           </div>
           <div class="card-body">
             <table id="datatablesSimple">
