@@ -17,6 +17,10 @@ if ($zk->connect()) {
 
         $nis = $log[1];
         $waktu = $log[3];
+        $jam_masuk = "07:00:00";
+        $batas_telat = "07:15:00"; // lewat ini = terlambat
+        $jam_pulang_min = "14:00:00"; // boleh scan pulang mulai sini
+
 
         // cek apakah scan ini sudah pernah disimpan
         $cek_scan = mysqli_query(
@@ -51,12 +55,19 @@ if ($zk->connect()) {
         if (mysqli_num_rows($cek) == 0) {
 
             // scan pertama = datang
+            $status = "Hadir";
+
+            if ($jam > $batas_telat) {
+                $status = "Terlambat";
+            }
+
             mysqli_query(
                 $koneksi,
                 "INSERT INTO absensi
-            (NIS,tanggal,jam_datang,last_scan,status)
-            VALUES ('$nis','$tanggal','$jam','$waktu', 'Hadir')"
+                (NIS,tanggal,jam_datang,jam_pulang,last_scan,status)
+                VALUES ('$nis','$tanggal','$jam',NULL,'$waktu','$status')"
             );
+
             $siswa = mysqli_fetch_assoc($cek_siswa);
             if (!$siswa) continue;
 
@@ -81,16 +92,32 @@ if ($zk->connect()) {
             // kalau sudah ada datang tapi belum pulang
             if (
                 $row['jam_pulang'] == NULL
-                && $jam > $row['jam_datang']
+                && $jam >= $jam_pulang_min
             ) {
 
                 mysqli_query(
                     $koneksi,
                     "UPDATE absensi
-                 SET jam_pulang='$jam'
-                 WHERE NIS='$nis'
-                 AND tanggal='$tanggal'"
+                    SET jam_pulang='$jam',
+                        last_scan='$waktu'
+                    WHERE NIS='$nis'
+                    AND tanggal='$tanggal'"
                 );
+
+                // kirim notif pulang
+                $siswa = mysqli_fetch_assoc($cek_siswa);
+                if ($siswa) {
+                    $nama = $siswa['nama'];
+                    $no_ortu = $siswa['no_hp'];
+
+                    $pesan = "Assalamu’alaikum Warahmatullahi Wabarakatuh\n\n" .
+                        "Pemberitahuan Absensi:\n" .
+                        "Ananda $nama telah pulang pada pukul $jam.\n" .
+                        "Semoga selamat sampai rumah.\n\n" .
+                        "— [SMK AL-MALIKI]";
+
+                    echo kirimWA($no_ortu, $pesan);
+                }
             }
         }
     }
