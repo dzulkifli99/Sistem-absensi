@@ -29,12 +29,12 @@ include "hapus.php";
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
-            <h1 class="mt-4">Data siswa</h1>
+            <h1 class="mt-4  text-light">Data siswa</h1>
             <ol class="breadcrumb mb-4">
-              <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
-              <li class="breadcrumb-item active">Data siswa</li>
+              <li class="breadcrumb-item "><a href="dashboard.php">Dashboard</a></li>
+              <li class="breadcrumb-item active text-light">Data siswa</li>
             </ol>
           </div>
           <div class="text-end">
@@ -42,7 +42,7 @@ include "hapus.php";
               <i class="far fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
-            <div id="date" class="text-muted fw-medium mt-1">Memuat Tanggal...</div>
+            <div id="date" class="text-light fw-medium mt-1  ">Memuat Tanggal...</div>
           </div>
         </div>
 
