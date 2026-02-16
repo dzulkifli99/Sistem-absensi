@@ -40,7 +40,7 @@ include "sidebar.php";
           </div>
           <div class="text-end">
             <div class="d-flex align-items-center justify-content-end text-primary fw-bold">
-              <i class="fa-solid fa-clock"></i>
+              <i class="fa-solid fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
             <div id="date" class="text-light fw-medium mt-1 ">Memuat Tanggal...</div>
@@ -128,7 +128,7 @@ include "sidebar.php";
         <div class="card mb-4">
           <div class="card-header">
             <div><i class="fas fa-table me-1"></i>
-              <button id="btnSync" class="btn btn-primary shadow-sm float-end" onclick="jalankanSync()">
+              <button id="btnSync" class="btn btn-outline-primary shadow-sm float-end" onclick="jalankanSync()">
                 <i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin
               </button>
               <span id="syncStatus" class="ms-2 text-muted" style="display:none;">Sedang menarik data...</span>
@@ -196,7 +196,7 @@ ORDER BY d.kelas, d.nama
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
                     <td><?= $row['status'] ?: 'Belum Absen' ?></td>
                     <td>
-                      <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                      <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i>Edit</a>
                     </td>
                   </tr>
 

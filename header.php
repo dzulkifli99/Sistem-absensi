@@ -52,12 +52,12 @@
                 <ul
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="index.php">Login</a></li>
-                    <li><a class="dropdown-item" href="setting.php">Setting</a></li>
+                    <li><a class="dropdown-item" href="index.php"><i class="fa-solid fa-circle-user me-2"></i>Login</a></li>
+                    <li><a class="dropdown-item" href="setting.php"><i class="fa-solid fa-gear me-2"></i>Setting</a></li>
                     <li>
                         <hr class="dropdown-divider" />
                     </li>
-                    <li><a class="dropdown-item" href="index.php">Logout</a></li>
+                    <li><a class="dropdown-item" href="index.php"><i class="fa-solid fa-circle-left me-2"></i>Logout</a></li>
                 </ul>
             </li>
         </ul>

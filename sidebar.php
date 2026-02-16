@@ -52,7 +52,7 @@
                             </nav>
                         </div>
                         <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-folder-open"></i></i></div>
                             Rekap Absensi
                             <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
@@ -85,12 +85,12 @@
                         <div class="sb-sidenav-menu-heading">Addons</div>
                         <a class="nav-link" href="notifikasi.php">
                             <div class="sb-nav-link-icon">
-                                <i class="fa-regular fa-envelope"></i>
+                                <i class="fa-solid fa-message"></i></i>
                             </div>
                             Notifikasi
                         </a>
                         <a class="nav-link" href="data_siswa.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-users"></i></div>
                             Data siswa
                         </a>
                     </div>

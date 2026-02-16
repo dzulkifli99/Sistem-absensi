@@ -121,7 +121,7 @@ include "hapus.php";
                     <td><?= $dt_siswa['kelas']; ?></td>
                     <td><?= $dt_siswa['no_hp']; ?></td>
                     <td>
-                      <a href="edit.php?id=<?php echo $dt_siswa['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                      <a href="edit.php?id=<?php echo $dt_siswa['id']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i>Edit</a>
                       <button type="button"
                         class="btn btn-danger btn-sm"
                         onclick="konfirmasiHapus('<?= $dt_siswa['NIS']; ?>', this)">
