@@ -31,19 +31,19 @@ include "sidebar.php";
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <div class="card-body d-flex justify-content-between align-items-center p-4">
+        <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
-            <h1 class="mt-4">Dashboard</h1>
+            <h1 class="mt-4 text-light">Dashboard</h1>
             <ol class="breadcrumb mb-4">
-              <li class="breadcrumb-item active">Dashboard</li>
+              <li class="breadcrumb-item active text-light">Dashboard</li>
             </ol>
           </div>
           <div class="text-end">
             <div class="d-flex align-items-center justify-content-end text-primary fw-bold">
-              <i class="far fa-clock me-2"></i>
+              <i class="fa-solid fa-clock"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
-            <div id="date" class="text-muted fw-medium mt-1">Memuat Tanggal...</div>
+            <div id="date" class="text-light fw-medium mt-1 ">Memuat Tanggal...</div>
           </div>
         </div>
 
