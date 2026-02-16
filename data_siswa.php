@@ -80,11 +80,9 @@ include "hapus.php";
             <i class="fas fa-table me-1"></i>
             DataTable Example
 
-            <button type="button" class="btn btn-primary float-end ms-2" onclick="window.location.href='form.php'">
-              <i class="fa-solid fa-user-plus"></i> Tambah
-            </button>
+            <button type="button" class="btn btn-outline-primary float-end ms-2" onclick="window.location.href='form.php'"> <i class="fa-solid fa-user-plus"></i> Tambah</button>
 
-            <label for="file-import" class="btn btn-success float-end">
+            <label for="file-import" class="btn btn-outline-success float-end">
               <i class="fa-solid fa-file-import"></i> Import
             </label>
 
