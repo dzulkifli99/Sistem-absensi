@@ -1,6 +1,7 @@
 <?php
 include "header.php";
 include "sidebar.php";
+include "hapus.php";
 ?>
 
 <!DOCTYPE html>
@@ -79,7 +80,7 @@ include "sidebar.php";
             <i class="fas fa-table me-1"></i>
             DataTable Example
 
-            <button type="button" class="btn btn-primary float-end ms-2">
+            <button type="button" class="btn btn-primary float-end ms-2" onclick="window.location.href='form.php'">
               <i class="fa-solid fa-user-plus"></i> Tambah
             </button>
 
