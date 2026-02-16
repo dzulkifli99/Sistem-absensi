@@ -11,10 +11,12 @@ $data = mysqli_fetch_assoc(mysqli_query(
 <form method="POST">
     <input type="time" name="datang" value="<?= $data['jam_datang'] ?>">
     <input type="time" name="pulang" value="<?= $data['jam_pulang'] ?>">
-    <select name="status">
-        <option>Hadir</option>
-        <option>Terlambat</option>
-        <option>Izin</option>
+
+    <select class="form-select" aria-label="Default select example">
+        <option value="1">Hadir</option>
+        <option value="2">Terlambat</option>
+        <option value="3">Izin</option>
+        <option value="4">Alpa</option>
     </select>
     <button name="simpan">Simpan</button>
 </form>
