@@ -93,7 +93,6 @@
                           <td><?= $setting['batas_pulang']; ?></td>
                           <td>
                             <a href="edit.php?id=<?php echo $setting['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                            <a href="hapus.php?id=<?php echo $setting['id']; ?>" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus?')">Hapus</a>
                           </td>
                           <button class="btn btn-primary float-end" id="login" name="login">Simpan</button>
                           <td></td>
@@ -106,7 +105,7 @@
                 </div>
                 <div class="card-footer text-center py-3">
                   <div class="small">
-                    <a href="dashboard.php">Have an account? Go to login</a>
+                    <a href="dashboard.php">Kembali ke Dashboard</a>
                   </div>
                 </div>
               </div>
