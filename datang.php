@@ -29,11 +29,57 @@ include "sidebar.php";
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
-        <h1 class="mt-4">Absensi Datang</h1>
-        <ol class="breadcrumb mb-4">
-          <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-          <li class="breadcrumb-item active">Absensi Datang</li>
-        </ol>
+        <div class="card-body d-flex justify-content-between align-items-center p-4">
+          <div>
+            <h1 class="mt-4">Absensi Datang</h1>
+            <ol class="breadcrumb mb-4">
+              <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+              <li class="breadcrumb-item active">Absensi Datang</li>
+            </ol>
+          </div>
+          <div class="text-end">
+            <div class="d-flex align-items-center justify-content-end text-primary fw-bold">
+              <i class="far fa-clock me-2"></i>
+              <h3 id="clock" class="mb-0">00:00:00</h3>
+            </div>
+            <div id="date" class="text-muted fw-medium mt-1">Memuat Tanggal...</div>
+          </div>
+        </div>
+
+
+
+
+
+        <!-- jam Digital -->
+        <script>
+          function updateDateTime() {
+            const now = new Date();
+
+            // 1. Logika Jam Digital
+            const time = now.toLocaleTimeString('id-ID', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            });
+            document.getElementById("clock").innerHTML = time.replace(/\./g, ':');
+
+            // 2. Logika Tanggal Indonesia
+            const options = {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
+            document.getElementById("date").innerHTML = dateString;
+          }
+
+          // Jalankan setiap detik
+          setInterval(updateDateTime, 1000);
+          updateDateTime();
+        </script>
+
         <div class="card mb-4">
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
