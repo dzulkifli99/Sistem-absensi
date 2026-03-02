@@ -38,7 +38,7 @@ include "hapus.php";
             </ol>
           </div>
           <div class="text-end">
-            <div class="d-flex align-items-center justify-content-end text-primary fw-bold">
+            <div class="d-flex align-items-center justify-content-end text-light fw-bold">
               <i class="far fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
@@ -80,14 +80,19 @@ include "hapus.php";
             <i class="fas fa-table me-1"></i>
             DataTable Example
 
-            <button type="button" class="btn btn-outline-primary float-end ms-2" onclick="window.location.href='form.php'"> <i class="fa-solid fa-user-plus"></i> Tambah</button>
+            <button type="button" class="btn btn-outline-primary float-end ms-2">
+              <i class="fa-solid fa-user-plus"></i> Tambah
+            </button>
 
-            <label for="file-import" class="btn btn-outline-success float-end">
-              <i class="fa-solid fa-file-import"></i> Import
-            </label>
+            <button type="button" class="btn btn-outline-success float-end" onclick="pilihFile()">
+              <i class="fa-solid fa-file-excel"></i> Import Data
+            </button>
 
-            <input type="file" id="file-import" name="import" style="display:none;">
+            <form id="formImport" action="proses_import.php" method="POST" enctype="multipart/form-data">
+              <input type="file" id="inputHidden" name="file_excel" style="display:none;" onchange="submitOtomatis()">
+            </form>
           </div>
+
           <div class="card-body">
             <table id="datatablesSimple">
               <thead>
@@ -121,11 +126,18 @@ include "hapus.php";
                     <td><?= $dt_siswa['kelas']; ?></td>
                     <td><?= $dt_siswa['no_hp']; ?></td>
                     <td>
-                      <a href="edit.php?id=<?php echo $dt_siswa['id']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i>Edit</a>
+                      <button type="button"
+                        class="btn btn-warning btn-sm btn-edit"
+                        data-id="<?php echo $dt_siswa['NIS']; ?>"
+                        data-nama="<?php echo $dt_siswa['nama']; ?>"
+                        data-kelas="<?php echo $dt_siswa['kelas']; ?>"
+                        data-hp="<?php echo $dt_siswa['no_hp']; ?>">
+                        <i class="fa-solid fa-pen"></i>
+                      </button>
                       <button type="button"
                         class="btn btn-danger btn-sm"
                         onclick="konfirmasiHapus('<?= $dt_siswa['NIS']; ?>', this)">
-                        <i class="fas fa-trash"></i> Hapus
+                        <i class="fas fa-trash"></i>
                       </button>
                     </td>
                   </tr>
@@ -202,6 +214,34 @@ include "hapus.php";
             });
         }
       })
+    }
+  </script>
+  <!-- import exel -->
+  <script>
+    function pilihFile() {
+      // Memicu klik pada input file yang tersembunyi
+      document.getElementById('inputHidden').click();
+    }
+
+    function submitOtomatis() {
+      const fileInput = document.getElementById('inputHidden');
+      if (fileInput.files.length > 0) {
+        // Jika ingin langsung upload setelah pilih file:
+        document.getElementById('formImport').submit();
+
+        // Atau munculkan notifikasi konfirmasi dulu:
+        // Swal.fire({
+        //   title: 'File terpilih',
+        //   text: "Ingin mengimport data dari " + fileInput.files[0].name + "?",
+        //   icon: 'question',
+        //   showCancelButton: true,
+        //   confirmButtonText: 'Ya, Import!'
+        // }).then((result) => {
+        //   if (result.isConfirmed) {
+        //     document.getElementById('formImport').submit();
+        //   }
+        // });
+      }
     }
   </script>
 </body>

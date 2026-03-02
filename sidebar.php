@@ -9,7 +9,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sipantau - SMALKIS</title>
+    <title> SMALKIS</title>
 </head>
 
 <body>
@@ -21,7 +21,7 @@
                         <div class="sb-sidenav-menu-heading">Core</div>
                         <a class="nav-link" href="dashboard.php">
                             <div class="sb-nav-link-icon">
-                                <i class="fas fa-tachometer-alt"></i>
+                                <i class="fa-solid fa-house"></i></i>
                             </div>
                             Dashboard
                         </a>
@@ -34,7 +34,7 @@
                             aria-expanded="false"
                             aria-controls="collapseLayouts">
                             <div class="sb-nav-link-icon">
-                                </i> <i class="fas fa-book-open"></i>
+                                <i class="fa-solid fa-address-book"></i>
                             </div>
                             Absensi
                             <div class="sb-sidenav-collapse-arrow">
@@ -51,10 +51,12 @@
                                 <a class="nav-link" href="pulang.php">Absensi pulang</a>
                             </nav>
                         </div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fa-solid fa-folder-open"></i></i></div>
+
+                        <a class="nav-link" href="rekap.php">
+                            <div class="sb-nav-link-icon">
+                                <i class="fa-solid fa-folder-open"></i>
+                            </div>
                             Rekap Absensi
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                         </a>
                         <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                             <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">

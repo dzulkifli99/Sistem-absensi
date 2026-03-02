@@ -9,14 +9,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPANTAU - SMALKIS</title>
+    <title>SMALKIS</title>
     <link rel="icon" href="assets/img/smalkis.png" type="image/png" sizes="192x192">
 </head>
 
 <body>
     <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="index.html">SMK Al-Maliki</a>
+        <a class="navbar-brand ps-3" href="dashboard.php">SMK Al-Maliki</a>
         <!-- Sidebar Toggle-->
         <button
             class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"
@@ -28,15 +28,6 @@
         <form
             class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
             <div class="input-group">
-                <!-- <input
-                    class="form-control"
-                    type="text"
-                    placeholder="Search for..."
-                    aria-label="Search for..."
-                    aria-describedby="btnNavbarSearch" />
-                <button class="btn btn-primary" id="btnNavbarSearch" type="button">
-                    <i class="fas fa-search"></i>
-                </button> -->
             </div>
         </form>
         <!-- Navbar-->
@@ -52,7 +43,7 @@
                 <ul
                     class="dropdown-menu dropdown-menu-end"
                     aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="index.php"><i class="fa-solid fa-circle-user me-2"></i>Login</a></li>
+                    <li><a class="dropdown-item" href="login.php"><i class="fa-solid fa-circle-user me-2"></i>Login</a></li>
                     <li><a class="dropdown-item" href="setting.php"><i class="fa-solid fa-gear me-2"></i>Setting</a></li>
                     <li>
                         <hr class="dropdown-divider" />

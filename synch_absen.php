@@ -2,11 +2,12 @@
 require 'koneksi.php';
 require 'zklibrary.php';
 require 'notifikasi.php';
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 date_default_timezone_set('Asia/Jakarta');
 
-$zk = new ZKLibrary('192.168.1.201', 4370);
+$zk = new ZKLibrary('192.168.1.202', 4370);
 
 if ($zk->connect()) {
 
@@ -76,7 +77,7 @@ if ($zk->connect()) {
             $nama = $siswa['nama'];
             $no_ortu = $siswa['no_hp'];
 
-            $pesan = "Assalamu’alaikum Warahmatullahi Wabarakatuh\n\n" .
+            $pesan = "Assalamu’alaikum Wr.Wb\n\n" .
                 "Pemberitahuan Absensi:\n" .
                 "Alhamdulillah, Ananda $nama telah tiba di sekolah dengan selamat pada pukul $jam\n" .
                 "Status: Hadir (Tepat Waktu)\n" .

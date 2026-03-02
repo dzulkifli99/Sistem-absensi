@@ -1,4 +1,3 @@
-```php
 <?php
 require 'koneksi.php';
 require 'zklibrary.php';
@@ -19,7 +18,7 @@ $batas_pulang_akhir = "15:00:00";
 // ==========================
 // KONEKSI FINGERPRINT
 // ==========================
-$zk = new ZKLibrary('192.168.1.201', 4370);
+$zk = new ZKLibrary('192.168.1.202', 4370);
 
 if (!$zk->connect()) {
   die("Gagal koneksi mesin");
@@ -154,5 +153,3 @@ $zk->enableDevice();
 $zk->disconnect();
 
 echo "Sync sukses";
-?>
-```

@@ -4,7 +4,7 @@ ini_set('display_errors', 1);
 
 require 'zklibrary.php';
 
-$ip = '192.168.1.202';
+$ip = '192.168.1.201';
 $zk = new ZKLibrary($ip, 4370);
 
 echo "<h3>Menghubungkan ke Mesin Fingerprint...</h3>";

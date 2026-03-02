@@ -2,6 +2,23 @@
 include "koneksi.php";
 include "header.php";
 include "sidebar.php";
+$tgl_sekarang = date('Y-m-d');
+$q_hadir = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND (status='Hadir' )");
+$res_hadir = mysqli_fetch_assoc($q_hadir);
+$jml_hadir = $res_hadir['jml'];
+
+$q_telat = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='Terlambat')");
+$res_telat = mysqli_fetch_assoc($q_telat);
+$jml_telat = $res_telat['jml'];
+
+$q_izin = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='izin')");
+$res_izin = mysqli_fetch_assoc($q_izin);
+$jml_izin = $res_izin['jml'];
+
+$q_alpa = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='alpa')");
+$res_alpa = mysqli_fetch_assoc($q_alpa);
+$jml_alpa = $res_alpa['jml'];
+
 
 ?>
 <!DOCTYPE html>
@@ -15,7 +32,7 @@ include "sidebar.php";
     content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="description" content="" />
   <meta name="author" content="" />
-  <title>Dashboard - Sipantau_SMALKIS</title>
+  <title>SMALKIS</title>
   <link
     href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
     rel="stylesheet" />
@@ -39,7 +56,7 @@ include "sidebar.php";
             </ol>
           </div>
           <div class="text-end">
-            <div class="d-flex align-items-center justify-content-end text-primary fw-bold">
+            <div class="d-flex align-items-center justify-content-end text-light fw-bold">
               <i class="fa-solid fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
@@ -78,52 +95,52 @@ include "sidebar.php";
           updateDateTime();
         </script>
 
-        <div class="row">
-          <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
-              <div class="card-body">Hadir</div>
-              <div
-                class="card-footer d-flex align-items-center justify-content-between">
-                <div class="small text-white">
-                  <i class="fas fa-angle-right"></i>
-                </div>
+        <div class="row text-white">
+          <div class="col-md-3">
+            <div class="card bg-primary shadow">
+              <div class="card-body">
+                <h6>HADIR</h6>
+                <h2><?= $jml_hadir; ?></h2>
+
+                <i class="fa-solid fa-user-check float-end opacity-50" style="font-size: 40px; margin-top: -40px;"></i>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6">
-            <div class="card bg-warning text-white mb-4">
-              <div class="card-body">terlambat</div>
-              <div
-                class="card-footer d-flex align-items-center justify-content-between">
-                <div class="small text-white">
-                  <i class="fas fa-angle-right"></i>
-                </div>
+          <div class="col-md-3">
+            <div class="card bg-warning shadow">
+              <div class="card-body">
+                <h6>TERLAMBAT</h6>
+                <h2><?= $jml_telat; ?></h2>
+                <i class="fa-solid fa-user-minus float-end opacity-50" style="font-size: 40px; margin-top: -40px;"></i>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6">
-            <div class="card bg-success text-white mb-4">
-              <div class="card-body">Izin</div>
-              <div
-                class="card-footer d-flex align-items-center justify-content-between">
-                <div class="small text-white">
-                  <i class="fas fa-angle-right"></i>
-                </div>
+
+          <div class="col-md-3">
+            <div class="card bg-success shadow">
+              <div class="card-body">
+                <h6>IZIN</h6>
+                <h2><?= $jml_izin; ?></h2>
+                <float-end class="fa-solid fa-user-xmark float-end opacity-50" style="font-size: 40px; margin-top: -40px;"></i>
               </div>
             </div>
           </div>
-          <div class="col-xl-3 col-md-6">
-            <div class="card bg-danger text-white mb-4">
-              <div class="card-body">Alpa</div>
-              <div
-                class="card-footer d-flex align-items-center justify-content-between">
-                <div class="small text-white">
-                  <i class="fas fa-angle-right"></i>
-                </div>
+          <div class="col-md-3">
+            <div class="card bg-danger shadow">
+              <div class="card-body">
+                <h6>ALPA</h6>
+                <h2><?= $jml_alpa; ?></h2>
+                <i class="fa-solid fa-user-slash float-end opacity-50" style="font-size: 40px; margin-top: -40px;"></i>
               </div>
             </div>
           </div>
         </div>
+
+
+
+
+
+
 
         <div class="card mb-4">
           <div class="card-header">
@@ -196,7 +213,7 @@ ORDER BY d.kelas, d.nama
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
                     <td><?= $row['status'] ?: 'Belum Absen' ?></td>
                     <td>
-                      <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i>Edit</a>
+                      <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
                     </td>
                   </tr>
 
