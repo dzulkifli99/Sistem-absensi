@@ -1,5 +1,44 @@
 <?php
 include "koneksi.php";
+session_start();
+
+
+if (isset($_SESSION["is_login"])) {
+  header("location:dashboard.php");
+}
+
+$pesan = "";
+
+if (isset($_POST['login'])) {
+  $username = mysqli_real_escape_string($koneksi, $_POST['username']) ?? '';
+  $password = $_POST['password'] ?? ''; // Jangan di-escape_string karena akan dicek lewat fungsi
+
+  // 1. Cari user hanya berdasarkan USERNAME
+  $q = "SELECT * FROM admin WHERE username='$username'";
+  $result = mysqli_query($koneksi, $q);
+
+  if (mysqli_num_rows($result) > 0) {
+    $data = mysqli_fetch_assoc($result);
+
+    // 2. VERIFIKASI: Bandingkan password input dengan hash di database
+    if (password_verify($password, $data['password'])) {
+      // Jika cocok, buat session
+      $_SESSION["username"] = $data["username"];
+      $_SESSION["is_login"] = true;
+
+      header("Location: dashboard.php");
+      exit();
+    } else {
+      // Password salah
+      echo "<script>alert('Password Salah!');</script>";
+    }
+  } else {
+    $pesan = '<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <i class="fa-solid fa-triangle-exclamation me-2"></i> Username tidak ditemukan!
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>';
+  }
+}
 
 ?>
 
@@ -48,6 +87,7 @@ include "koneksi.php";
                   <h3 class="text-center font-weight-light my-4">Login</h3>
                 </div>
                 <div class="card-body">
+                  <?= $pesan; ?>
                   <form action="" method="post">
                     <div class="form-floating mb-3">
                       <input class="form-control" id="username" name="username" type="text" placeholder="Masukkan Username" required />
@@ -65,8 +105,10 @@ include "koneksi.php";
                   </form>
                 </div>
                 <div class="card-footer text-center py-3">
-                  <div class="small">
-                    <a href="register.html">Need an account? Sign up!</a>
+                  <div class="card-footer text-center py-3">
+                    <div class="small">
+                      <a href="register.php">Register!</a>
+                    </div>
                   </div>
                 </div>
               </div>

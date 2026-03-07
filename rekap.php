@@ -1,6 +1,7 @@
 <?php
-include "sidebar.php";
 include "header.php";
+include "sidebar.php";
+
 
 ?>
 
@@ -15,8 +16,7 @@ include "header.php";
     content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <meta name="description" content="" />
   <meta name="author" content="" />
-  <title>SMALKIS</title>
-
+  <title>Dashboard - SMK Al-Maliki</title>
   <link
     href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
     rel="stylesheet" />
@@ -27,57 +27,54 @@ include "header.php";
 </head>
 
 <body class="sb-nav-fixed">
-
   <div id="layoutSidenav_content">
     <main>
       <div class="container-fluid px-4">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
-            <h1 class="mt-4 text-light">Rekap Absensi</h1>
+            <h1 class="mt-4 text-light">Absensi Pulang</h1>
             <ol class="breadcrumb mb-4">
               <li class="breadcrumb-item "><a href="index.html">Dashboard</a></li>
-              <li class="breadcrumb-item active text-light">Rekap Absensi</li>
-
+              <li class="breadcrumb-item active text-light">Absensi Pulang</li>
             </ol>
           </div>
           <div class="text-end">
             <div class="d-flex align-items-center justify-content-end text-light fw-bold">
-              <i class="fa-solid fa-clock me-2"></i>
+              <i class="far fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
             <div id="date" class="text-light fw-medium mt-1 ">Memuat Tanggal...</div>
           </div>
-
-          <script>
-            function updateDateTime() {
-              const now = new Date();
-
-              // 1. Logika Jam Digital
-              const time = now.toLocaleTimeString('id-ID', {
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-              });
-              document.getElementById("clock").innerHTML = time.replace(/\./g, ':');
-
-              // 2. Logika Tanggal Indonesia
-              const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              };
-              const dateString = now.toLocaleDateString('id-ID', options);
-              document.getElementById("date").innerHTML = dateString;
-            }
-
-            // Jalankan setiap detik
-            setInterval(updateDateTime, 1000);
-            updateDateTime();
-          </script>
-
         </div>
+        <script>
+          function updateDateTime() {
+            const now = new Date();
+
+            // 1. Logika Jam Digital
+            const time = now.toLocaleTimeString('id-ID', {
+              hour12: false,
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            });
+            document.getElementById("clock").innerHTML = time.replace(/\./g, ':');
+
+            // 2. Logika Tanggal Indonesia
+            const options = {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            };
+            const dateString = now.toLocaleDateString('id-ID', options);
+            document.getElementById("date").innerHTML = dateString;
+          }
+
+          // Jalankan setiap detik
+          setInterval(updateDateTime, 1000);
+          updateDateTime();
+        </script>
+
         <div class="card mb-4">
           <div class="card-header">
             <i class="fas fa-table me-1"></i>
@@ -88,6 +85,8 @@ include "header.php";
               <thead>
                 <tr>
                   <th>#</th>
+
+
                   <th>Nama</th>
                   <th>Kelas</th>
                   <th>jam pulang</th>

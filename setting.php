@@ -1,34 +1,10 @@
 <?php
-// $nilai = 80;
+session_start();
 
-// if ($nilai >= 90) {
-//   echo "A";
-// } else if ($nilai >= 75 && $nilai < 90) {
-//   echo "B";
-// } else {
-//   echo "C";
-// }
-// $masuk = "07.00";
-// $datang = "06.20";
-// $batas = "07.15";
-// if (strtotime($datang) <= strtotime($masuk)) {
-//   echo "hadir";
-// } else if (strtotime($datang) >  strtotime($masuk) &&  strtotime($datang) <=  strtotime($batas)) {
-//   echo "terlambat";
-// } else {
-//   echo "alpa";
-// }
-// $jam_pulang = "14:30";
-// $batas = "15:00";
-// if ("siswa pulang" < strtotime($jam_pulang)) {
-//   echo "Bolos";
-// } elseif ("siswa Pulang" >= strtotime($jam_pulang) && ("siswa pulang") <= strtotime($batas)) {
-//   echo "normal";
-// } else {
-//   echo "tidak boleh absen";
-// }
-
-
+if (!isset($_SESSION["is_login"])) {
+  header("Location: index.php");
+  exit(); // Wajib ada agar kode di bawahnya tidak bocor/dieksekusi
+}
 ?>
 
 <!DOCTYPE html>

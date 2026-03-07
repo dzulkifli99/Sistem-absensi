@@ -110,13 +110,14 @@ include "sidebar.php";
                 </tr>
               </tfoot>
               <tbody>
-                <th>1</th>
-                <th>doddy</th>
-                <th>X TKJ B</th>
-                <th>6.50</th>
-                <th>Hadir</th>
-                <th>2026-02-03</th>
-                <th>aksi</th>
+                <tr>
+                  <th>1</th>
+                  <th>doddy</th>
+                  <th>X TKJ B</th>
+                  <th>6.50</th>
+                  <th>Hadir</th>
+                  <th>2026-02-03</th>
+                  <th>aksi</th>
                 </tr>
                 <th>2</th>
                 <th>Dzulkifli Hasbiallah</th>

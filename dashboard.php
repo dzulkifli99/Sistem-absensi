@@ -1,7 +1,17 @@
 <?php
-include "koneksi.php";
+session_start();
 include "header.php";
+if (!isset($_SESSION["is_login"])) {
+  header("Location: index.php");
+  exit(); // Wajib ada agar kode di bawahnya tidak bocor/dieksekusi
+}
+
+include "koneksi.php";
+
 include "sidebar.php";
+
+
+
 $tgl_sekarang = date('Y-m-d');
 $q_hadir = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND (status='Hadir' )");
 $res_hadir = mysqli_fetch_assoc($q_hadir);
@@ -33,6 +43,8 @@ $jml_alpa = $res_alpa['jml'];
   <meta name="description" content="" />
   <meta name="author" content="" />
   <title>SMALKIS</title>
+  <link rel="icon" href="assets/img/smalkis.png" type="image/png" sizes="192x192">
+
   <link
     href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
     rel="stylesheet" />
@@ -50,7 +62,7 @@ $jml_alpa = $res_alpa['jml'];
       <div class="container-fluid px-4">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
-            <h1 class="mt-4 text-light">Dashboard</h1>
+            <h1 class="mt-4 text-light">SELAMAT DATANG <?= $_SESSION["username"]; ?></h1>
             <ol class="breadcrumb mb-4">
               <li class="breadcrumb-item active text-light">Dashboard</li>
             </ol>
