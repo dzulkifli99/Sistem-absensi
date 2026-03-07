@@ -1,4 +1,8 @@
 <?php
+session_start();
+if (isset($_SESSION["is_login"])) {
+    header("location:dashboard.php");
+}
 include "koneksi.php";
 include "header.php";
 // include "sidebar.php";

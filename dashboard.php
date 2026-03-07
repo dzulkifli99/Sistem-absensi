@@ -149,18 +149,13 @@ $jml_alpa = $res_alpa['jml'];
         </div>
 
 
-
-
-
-
-
         <div class="card mb-4">
           <div class="card-header">
-            <div><i class="fas fa-table me-1"></i>
-              <button id="btnSync" class="btn btn-outline-primary shadow-sm float-end" onclick="jalankanSync()">
+            <div>
+              <button id="btnSync" class="btn btn-primary shadow-sm float-end" onclick="jalankanSync()">
                 <i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin
               </button>
-              <span id="syncStatus" class="ms-2 text-muted" style="display:none;">Sedang menarik data...</span>
+              <span id="syncStatus" class="ms-2 text-muted float-end" style="display:none;">Sedang menarik data...</span>
             </div>
           </div>
 
@@ -193,7 +188,15 @@ ORDER BY d.kelas, d.nama
 
           <div class="card-body">
             <table id="datatablesSimple">
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
+                Cari Kelas
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="dashboard.php">10</a></li>
+                <li><a class="dropdown-item" href="dashboard.php">11</a></li>
+                <li><a class="dropdown-item" href="dashboard.php">12</a></li>
 
+              </ul>
               <thead>
                 <tr>
                   <th>No</th>
@@ -213,6 +216,11 @@ ORDER BY d.kelas, d.nama
                 <?php
                 $no = 1;
                 while ($row = mysqli_fetch_assoc($query)) {
+                  $status = $row['status'] ?: 'Belum Absen';
+                  $bg_color = "secondary";
+                  if ($status == 'Hadir') $bg_color = "success";
+                  if ($status == 'Terlambat') $bg_color = "warning text-dark";
+                  if ($status == 'Alpa') $bg_color = "danger";
                 ?>
 
                   <tr>
@@ -223,7 +231,7 @@ ORDER BY d.kelas, d.nama
                     <td><?= $row['jam_datang'] ?: '-' ?></td>
                     <td><?= $row['jam_pulang'] ?: '-' ?></td>
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
-                    <td><?= $row['status'] ?: 'Belum Absen' ?></td>
+                    <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
                     <td>
                       <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
                     </td>

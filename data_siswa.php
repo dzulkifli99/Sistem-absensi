@@ -95,6 +95,15 @@ include "hapus.php";
 
           <div class="card-body">
             <table id="datatablesSimple">
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
+                Cari Kelas
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="data_siswa.php">10</a></li>
+                <li><a class="dropdown-item" href="data_siswa.php">11</a></li>
+                <li><a class="dropdown-item" href="data_siswa.php">12</a></li>
+
+              </ul>
               <thead>
                 <tr>
                   <th>no</th>
