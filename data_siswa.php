@@ -28,7 +28,7 @@ include "hapus.php";
 <body class="sb-nav-fixed">
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-2">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
             <h1 class="mt-4  text-light">Data siswa</h1>
@@ -77,8 +77,7 @@ include "hapus.php";
 
         <div class="card mb-4">
           <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            DataTable Example
+
 
             <button type="button" class="btn btn-outline-primary float-end ms-2">
               <i class="fa-solid fa-user-plus"></i> Tambah
