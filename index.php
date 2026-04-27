@@ -221,17 +221,7 @@ ORDER BY d.kelas, d.nama
                                 <?php
                                 $no = 1;
                                 while ($row = mysqli_fetch_assoc($query)) {
-                                    // 1. Masking NIS (Misal: 10123 jadi 10***)
-                                    $nis_asli = $row['NIS'];
-                                    $nis_sensor = substr($nis_asli, 0, 2) . str_repeat('*', max(0, strlen($nis_asli) - 2));
-
-                                    // 2. Masking Nama (Misal: Budi Santoso jadi Budi S******)
-                                    $nama_asli = $row['nama'];
-                                    $exp_nama = explode(' ', $nama_asli);
-                                    $nama_depan = $exp_nama[0];
-                                    $nama_sensor = $nama_depan . " " . str_repeat('*', max(3, strlen($nama_asli) - strlen($nama_depan) - 1));
-
-                                    // 3. Status Badge Color
+                                    // Status Badge Color
                                     $status = $row['status'] ?: 'Belum Absen';
                                     $bg_color = "secondary";
                                     if ($status == 'Hadir') $bg_color = "success";
@@ -242,8 +232,8 @@ ORDER BY d.kelas, d.nama
 
                                     <tr>
                                         <td><?= $no++ ?></td>
-                                        <td><?= $nis_sensor ?></td>
-                                        <td><?= $nama_sensor ?></td>
+                                        <td><?= $row['NIS'] ?></td>
+                                        <td><?= $row['nama'] ?></td>
                                         <td><?= $row['kelas'] ?></td>
                                         <td><?= $row['jam_datang'] ?: '-' ?></td>
                                         <td><?= $row['jam_pulang'] ?: '-' ?></td>

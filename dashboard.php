@@ -245,23 +245,7 @@ ORDER BY d.kelas, d.nama
                     <td><?= $row['jam_datang'] ?: '-' ?></td>
                     <td><?= $row['jam_pulang'] ?: '-' ?></td>
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
-<<<<<<< HEAD
                     <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
-=======
-                    <!-- <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td> -->
-                    <td>
-                      <select class="form-select form-select-sm select-status bg-<?= $bg_color ?>"
-                        data-nis="<?= $row['NIS'] ?>"
-                        style="width: 120px;">
-                        <option value="Hadir" <?= $status == 'Hadir' ? 'selected' : '' ?>>Hadir</option>
-                        <option value="Terlambat" <?= $status == 'Terlambat' ? 'selected' : '' ?>>Terlambat</option>
-                        <option value="Izin" <?= $status == 'Izin' ? 'selected' : '' ?>>Izin</option>
-                        <option value="Sakit" <?= $status == 'Sakit' ? 'selected' : '' ?>>Sakit</option>
-                        <option value="Alpa" <?= $status == 'Alpa' ? 'selected' : '' ?>>Alpa</option>
-                        <option value="Belum Absen" <?= $status == 'Belum Absen' ? 'selected' : '' ?>>- Belum -</option>
-                      </select>
-                    </td>
->>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
                     <!-- <td>
                       <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
                     </td> -->
