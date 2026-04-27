@@ -4,7 +4,6 @@ if (isset($_SESSION["is_login"])) {
     header("location:dashboard.php");
 }
 include "koneksi.php";
-include "header.php";
 // include "sidebar.php";
 $tgl_sekarang = date('Y-m-d');
 $q_hadir = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND (status='Hadir' )");
@@ -37,6 +36,7 @@ $jml_alpa = $res_alpa['jml'];
     <meta name="description" content="" />
     <meta name="author" content="" />
     <title>SMALKIS</title>
+    <link rel="icon" href="assets/img/smalkis.png" type="image/png" sizes="192x192">
     <link
         href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
         rel="stylesheet" />
@@ -64,7 +64,8 @@ $jml_alpa = $res_alpa['jml'];
                             <i class="fa-solid fa-clock me-2"></i>
                             <h3 id="clock" class="mb-0">00:00:00</h3>
                         </div>
-                        <div id="date" class="text-light fw-medium mt-1 ">Memuat Tanggal...</div>
+                        <div id="date" class="text-light fw-medium mt-1 mb-2">Memuat Tanggal...</div>
+                        <a href="login.php" class="btn btn-outline-light btn-sm px-3 rounded-pill"><i class="fa-solid fa-right-to-bracket me-1"></i> Login Admin</a>
                     </div>
                 </div>
 
@@ -148,17 +149,31 @@ $jml_alpa = $res_alpa['jml'];
 
                 <div class="card mb-4">
                     <div class="card-header">
-                        <div><i class="fas fa-table me-1"></i>
-                            <button id="btnSync" class="btn btn-outline-primary shadow-sm float-end" onclick="jalankanSync()">
-                                <i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin
-                            </button>
-                            <span id="syncStatus" class="ms-2 text-muted" style="display:none;">Sedang menarik data...</span>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div><i class="fas fa-table me-1"></i> Data Kehadiran Siswa (Publik)</div>
+                            <div class="dropdown">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Cari Kelas
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="index.php">Semua Kelas</a></li>
+                                    <li><a class="dropdown-item" href="index.php?kelas=10">Kelas 10</a></li>
+                                    <li><a class="dropdown-item" href="index.php?kelas=11">Kelas 11</a></li>
+                                    <li><a class="dropdown-item" href="index.php?kelas=12">Kelas 12</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
 
 
                     <?php
                     $tanggal = date('Y-m-d');
+
+                    $filter_kelas = "";
+                    if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
+                        $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+                        $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
+                    }
 
                     $sql = "
 SELECT 
@@ -173,6 +188,7 @@ FROM data d
 LEFT JOIN absensi a 
 ON d.NIS = a.NIS 
 AND a.tanggal = '$tanggal'
+$filter_kelas
 ORDER BY d.kelas, d.nama
 ";
 
@@ -205,20 +221,34 @@ ORDER BY d.kelas, d.nama
                                 <?php
                                 $no = 1;
                                 while ($row = mysqli_fetch_assoc($query)) {
+                                    // 1. Masking NIS (Misal: 10123 jadi 10***)
+                                    $nis_asli = $row['NIS'];
+                                    $nis_sensor = substr($nis_asli, 0, 2) . str_repeat('*', max(0, strlen($nis_asli) - 2));
+
+                                    // 2. Masking Nama (Misal: Budi Santoso jadi Budi S******)
+                                    $nama_asli = $row['nama'];
+                                    $exp_nama = explode(' ', $nama_asli);
+                                    $nama_depan = $exp_nama[0];
+                                    $nama_sensor = $nama_depan . " " . str_repeat('*', max(3, strlen($nama_asli) - strlen($nama_depan) - 1));
+
+                                    // 3. Status Badge Color
+                                    $status = $row['status'] ?: 'Belum Absen';
+                                    $bg_color = "secondary";
+                                    if ($status == 'Hadir') $bg_color = "success";
+                                    if ($status == 'Terlambat') $bg_color = "warning text-dark";
+                                    if ($status == 'Alpa') $bg_color = "danger";
+                                    if ($status == 'Sakit' || $status == 'Izin') $bg_color = "info text-dark";
                                 ?>
 
                                     <tr>
                                         <td><?= $no++ ?></td>
-                                        <td><?= $row['NIS'] ?></td>
-                                        <td><?= $row['nama'] ?></td>
+                                        <td><?= $nis_sensor ?></td>
+                                        <td><?= $nama_sensor ?></td>
                                         <td><?= $row['kelas'] ?></td>
                                         <td><?= $row['jam_datang'] ?: '-' ?></td>
                                         <td><?= $row['jam_pulang'] ?: '-' ?></td>
                                         <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
-                                        <td><?= $row['status'] ?: 'Belum Absen' ?></td>
-                                        <!-- <td>
-                                            <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
-                                        </td> -->
+                                        <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
                                     </tr>
 
                                 <?php } ?>
@@ -259,36 +289,7 @@ ORDER BY d.kelas, d.nama
         crossorigin="anonymous"></script>
     <script src="js/datatables-simple-demo.js"></script>
 
-    <!-- sinkron data -->
-    <script>
-        function jalankanSync() {
-            const btn = document.getElementById('btnSync');
-            const status = document.getElementById('syncStatus');
-
-            // 1. Tampilan saat loading
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghubungkan...';
-            status.style.display = 'inline';
-
-            // 2. Panggil file PHP
-            fetch('synch_absen.php')
-                .then(response => response.text())
-                .then(data => {
-                    alert('Proses Selesai: ' + data);
-                    location.reload(); // Refresh halaman untuk melihat data terbaru di tabel
-                })
-                .catch(err => {
-                    alert('Gagal terhubung ke mesin!');
-                    console.error(err);
-                })
-                .finally(() => {
-                    // 3. Kembalikan tombol ke asal
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin';
-                    status.style.display = 'none';
-                });
-        }
-    </script>
+    <!-- SCRIPT DAERAH PUBLIK: TINGGALKAN KOSONG TANPA SINKRONISASI -->
 
 </body>
 

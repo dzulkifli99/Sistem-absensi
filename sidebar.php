@@ -95,6 +95,15 @@
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-users"></i></div>
                             Data siswa
                         </a>
+                        <div class="sb-sidenav-menu-heading">Pengaturan</div>
+                        <a class="nav-link" href="setting.php">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-gear"></i></div>
+                            Setting
+                        </a>
+                        <a class="nav-link text-danger" href="logout.php">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-right-from-bracket text-danger"></i></div>
+                            Logout
+                        </a>
                     </div>
                 </div>
                 <div class="sb-sidenav-footer">

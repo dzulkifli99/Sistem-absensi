@@ -11,9 +11,16 @@ include "koneksi.php";
 
 // 3. Logika kueri database (pindahkan ke atas agar rapi)
 $tanggal = date('Y-m-d');
+$filter_kelas = "";
+if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
+  $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+  $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
+}
+
 $sql = "SELECT d.NIS, d.nama, d.kelas, a.jam_datang, a.status, a.tanggal 
         FROM data d 
         LEFT JOIN absensi a ON d.NIS = a.NIS AND a.tanggal = '$tanggal' 
+        $filter_kelas
         ORDER BY d.kelas, d.nama";
 
 $query = mysqli_query($koneksi, $sql);
@@ -42,7 +49,7 @@ include "sidebar.php";
 <body class="sb-nav-fixed">
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-2">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
             <h1 class="mt-4 text-light">Absensi Datang</h1>
@@ -70,10 +77,10 @@ include "sidebar.php";
                 Cari Kelas
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="datang.php">10</a></li>
-                <li><a class="dropdown-item" href="datang.php">11</a></li>
-                <li><a class="dropdown-item" href="datang.php">12</a></li>
-
+                <li><a class="dropdown-item" href="datang.php">Semua Kelas</a></li>
+                <li><a class="dropdown-item" href="datang.php?kelas=10">Kelas 10</a></li>
+                <li><a class="dropdown-item" href="datang.php?kelas=11">Kelas 11</a></li>
+                <li><a class="dropdown-item" href="datang.php?kelas=12">Kelas 12</a></li>
               </ul>
           </div>
           <thead>
@@ -84,7 +91,6 @@ include "sidebar.php";
               <th>Jam Datang</th>
               <th>Status</th>
               <th>Tanggal</th>
-              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -94,7 +100,7 @@ include "sidebar.php";
               // Logika warna status
               $status = $row['status'] ?: 'Belum Absen';
               $bg_color = "secondary";
-              if ($status == 'Hadir') $bg_color = "success";
+              if ($status == 'Hadir') $bg_color = "primary";
               if ($status == 'Terlambat') $bg_color = "warning text-dark";
               if ($status == 'Alpa') $bg_color = "danger";
             ?>
@@ -103,13 +109,19 @@ include "sidebar.php";
                 <td><?= $row['nama'] ?></td>
                 <td><?= $row['kelas'] ?></td>
                 <td><?= $row['jam_datang'] ?: '-' ?></td>
-                <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
-                <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
                 <td>
-                  <a href="form.php?id=<?= $row['NIS']; ?>" class="btn btn-warning btn-sm">
-                    <i class="fa-solid fa-pen"></i>
-                  </a>
+                  <select class="form-select form-select-sm select-status bg-<?= $bg_color ?>"
+                    data-nis="<?= $row['NIS'] ?>"
+                    style="width: 120px;">
+                    <option value="Hadir" <?= $status == 'Hadir' ? 'selected' : '' ?>>Hadir</option>
+                    <option value="Terlambat" <?= $status == 'Terlambat' ? 'selected' : '' ?>>Terlambat</option>
+                    <option value="Izin" <?= $status == 'Izin' ? 'selected' : '' ?>>Izin</option>
+                    <option value="Sakit" <?= $status == 'Sakit' ? 'selected' : '' ?>>Sakit</option>
+                    <option value="Alpa" <?= $status == 'Alpa' ? 'selected' : '' ?>>Alpa</option>
+                    <option value="Belum Absen" <?= $status == 'Belum Absen' ? 'selected' : '' ?>>- Belum -</option>
+                  </select>
                 </td>
+                <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
               </tr>
             <?php } ?>
           </tbody>
@@ -147,6 +159,44 @@ include "sidebar.php";
   <script src="js/scripts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
   <script src="js/datatables-simple-demo.js"></script>
+
+  <script>
+    // Gunakan Event Delegation agar dropdown tetap berfungsi meskipun tabel dipindah halaman (pagination)
+    document.body.addEventListener('change', function(e) {
+      if (e.target.classList.contains('select-status')) {
+        const select = e.target;
+        const nis = select.getAttribute('data-nis');
+        const statusBaru = select.value;
+
+        // Beri efek visual sedang loading (opsional)
+        select.style.opacity = '0.5';
+
+        // Kirim data ke file update_status.php
+        fetch('update_status.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `nis=${nis}&status=${statusBaru}`
+          })
+          .then(res => res.text())
+          .then(data => {
+            if (data === "success") {
+              // Beri tanda sukses kecil (border hijau sesaat)
+              select.style.borderColor = '#198754';
+              setTimeout(() => {
+                select.style.borderColor = '';
+              }, 1000);
+            } else {
+              alert("Gagal update database!");
+            }
+          })
+          .finally(() => {
+            select.style.opacity = '1';
+          });
+      }
+    });
+  </script>
 </body>
 
 </html>

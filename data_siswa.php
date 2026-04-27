@@ -1,7 +1,6 @@
 <?php
 include "header.php";
 include "sidebar.php";
-include "hapus.php";
 ?>
 
 <!DOCTYPE html>
@@ -28,7 +27,7 @@ include "hapus.php";
 <body class="sb-nav-fixed">
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-2">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
             <h1 class="mt-4  text-light">Data siswa</h1>
@@ -77,10 +76,9 @@ include "hapus.php";
 
         <div class="card mb-4">
           <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            DataTable Example
 
-            <button type="button" class="btn btn-outline-primary float-end ms-2">
+
+            <button type="button" class="btn btn-outline-primary float-end ms-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
               <i class="fa-solid fa-user-plus"></i> Tambah
             </button>
 
@@ -88,21 +86,32 @@ include "hapus.php";
               <i class="fa-solid fa-file-excel"></i> Import Data
             </button>
 
-            <form id="formImport" action="proses_import.php" method="POST" enctype="multipart/form-data">
-              <input type="file" id="inputHidden" name="file_excel" style="display:none;" onchange="submitOtomatis()">
+            <a href="download_template.php" class="btn btn-outline-secondary float-end me-2">
+              <i class="fa-solid fa-download"></i> Download Template
+            </a>
+
+            <form id="formImport" action="import.data.php" method="POST" enctype="multipart/form-data">
+              <input type="file" id="inputHidden" name="file_excel" accept=".xlsx,.xls,.csv" style="display:none;" onchange="submitOtomatis()">
             </form>
           </div>
 
           <div class="card-body">
             <table id="datatablesSimple">
               <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
-                Cari Kelas
+                <?= isset($_GET['kelas']) && $_GET['kelas'] != '' ? htmlspecialchars($_GET['kelas']) : 'Semua Kelas' ?>
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="data_siswa.php">10</a></li>
-                <li><a class="dropdown-item" href="data_siswa.php">11</a></li>
-                <li><a class="dropdown-item" href="data_siswa.php">12</a></li>
-
+                <li><a class="dropdown-item" href="data_siswa.php">Semua Kelas</a></li>
+                <?php
+                include "koneksi.php";
+                $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
+                $q_k = mysqli_query($koneksi, $sql_k);
+                if ($q_k) {
+                  while ($rk = mysqli_fetch_array($q_k)) {
+                    echo '<li><a class="dropdown-item" href="data_siswa.php?kelas=' . urlencode($rk['kelas']) . '">' . htmlspecialchars($rk['kelas']) . '</a></li>';
+                  }
+                }
+                ?>
               </ul>
               <thead>
                 <tr>
@@ -116,11 +125,13 @@ include "hapus.php";
               </thead>
 
               <tbody>
-                <?php
-                include "koneksi.php";
-                include "hapus.php";
-                // $sql = "SELECT * FROM siswa ORDER BY id DESC";
+                <?php // include "koneksi.php"; // sudah di include di atas
                 $sql = "SELECT * FROM data";
+                if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
+                  $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+                  $sql .= " WHERE kelas = '$kls'";
+                }
+                $sql .= " ORDER BY kelas ASC, nama ASC";
                 $query = mysqli_query($koneksi, $sql);
                 if (!$query) {
                   die("Error pada query :" . mysqli_error($koneksi));
@@ -156,20 +167,89 @@ include "hapus.php";
           </div>
         </div>
       </div>
-    </main>
-    <footer class="py-4 bg-light mt-auto">
-      <div class="container-fluid px-4">
-        <div
-          class="d-flex align-items-center justify-content-between small">
-          <div class="text-muted">Copyright &copy; Your Website 2023</div>
-          <div>
-            <a href="#">Privacy Policy</a>
-            &middot;
-            <a href="#">Terms &amp; Conditions</a>
+
+      <!-- Modal Tambah -->
+      <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header pb-3">
+              <h5 class="modal-title" id="modalTambahLabel"><i class="fa-solid fa-user-plus me-2"></i> Tambah Data Siswa</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="aksi_siswa.php" method="POST">
+              <div class="modal-body">
+                <div class="mb-3">
+                  <label for="nis" class="form-label fw-bold">NIS</label>
+                  <input type="number" class="form-control" id="nis" name="nis" required placeholder="Masukkan NIS">
+                </div>
+                <div class="mb-3">
+                  <label for="nama" class="form-label fw-bold">Nama Lengkap</label>
+                  <input type="text" class="form-control" id="nama" name="nama" required placeholder="Masukkan Nama Siswa">
+                </div>
+                <div class="mb-3">
+                  <label for="kelas" class="form-label fw-bold">Kelas</label>
+                  <input type="text" class="form-control" id="kelas" name="kelas" required placeholder="Contoh: 10 TKJ 1">
+                </div>
+                <div class="mb-3">
+                  <label for="no_hp" class="form-label fw-bold">No HP</label>
+                  <input type="text" class="form-control" id="no_hp" name="no_hp" placeholder="Contoh: 081234...">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" name="tambah" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan</button>
+              </div>
+            </form>
           </div>
         </div>
       </div>
-    </footer>
+
+      <!-- Modal Edit -->
+      <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header pb-3">
+              <h5 class="modal-title" id="modalEditLabel"><i class="fa-solid fa-pen me-2"></i> Edit Data Siswa</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="aksi_siswa.php" method="POST">
+              <div class="modal-body">
+                <input type="hidden" id="edit_nis_lama" name="nis_lama">
+                <div class="mb-3">
+                  <label for="edit_nis" class="form-label fw-bold">NIS</label>
+                  <input type="number" class="form-control" id="edit_nis" name="nis" required>
+                </div>
+                <div class="mb-3">
+                  <label for="edit_nama" class="form-label fw-bold">Nama Lengkap</label>
+                  <input type="text" class="form-control" id="edit_nama" name="nama" required>
+                </div>
+                <div class="mb-3">
+                  <label for="edit_kelas" class="form-label fw-bold">Kelas</label>
+                  <input type="text" class="form-control" id="edit_kelas" name="kelas" required>
+                </div>
+                <div class="mb-3">
+                  <label for="edit_no_hp" class="form-label fw-bold">No HP</label>
+                  <input type="text" class="form-control" id="edit_no_hp" name="no_hp">
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" name="edit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <footer class="py-4 bg-light mt-auto">
+      <div class="container-fluid px-4">
+        <div class="d-flex align-items-center justify-content-between small">
+          <div class="text-muted">Copyright &copy; SMK Al-Maliki 2026</div>
+        </div>
+      </div>
+  </div>
+  </footer>
   </div>
   </div>
   <!--link bootstrap  -->
@@ -225,32 +305,121 @@ include "hapus.php";
       })
     }
   </script>
-  <!-- import exel -->
+  <!-- script manipulasi modal edit -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Menggunakan Event Delegation karena Simple-DataTables me-render ulang dom pada tabel
+      document.body.addEventListener('click', function(e) {
+        // Cek jika elemen yang diklik atau elemen di dalamnya memiliki class btn-edit
+        const btn = e.target.closest('.btn-edit');
+
+        if (btn) {
+          // Ambil data dari atribut tombol
+          const id = btn.getAttribute('data-id');
+          const nama = btn.getAttribute('data-nama');
+          const kelas = btn.getAttribute('data-kelas');
+          const hp = btn.getAttribute('data-hp');
+
+          // Masukkan data ke dalam form modal
+          document.getElementById('edit_nis_lama').value = id;
+          document.getElementById('edit_nis').value = id;
+          document.getElementById('edit_nama').value = nama;
+          document.getElementById('edit_kelas').value = kelas;
+          document.getElementById('edit_no_hp').value = hp;
+
+          // Munculkan modal
+          var myModal = new bootstrap.Modal(document.getElementById('modalEdit'));
+          myModal.show();
+        }
+      });
+    });
+  </script>
+
+  <!-- import excel via AJAX -->
   <script>
     function pilihFile() {
-      // Memicu klik pada input file yang tersembunyi
+      // Reset value dulu agar event onchange selalu terpicu walau file sama
+      document.getElementById('inputHidden').value = '';
       document.getElementById('inputHidden').click();
     }
 
     function submitOtomatis() {
       const fileInput = document.getElementById('inputHidden');
-      if (fileInput.files.length > 0) {
-        // Jika ingin langsung upload setelah pilih file:
-        document.getElementById('formImport').submit();
+      if (fileInput.files.length === 0) return;
 
-        // Atau munculkan notifikasi konfirmasi dulu:
-        // Swal.fire({
-        //   title: 'File terpilih',
-        //   text: "Ingin mengimport data dari " + fileInput.files[0].name + "?",
-        //   icon: 'question',
-        //   showCancelButton: true,
-        //   confirmButtonText: 'Ya, Import!'
-        // }).then((result) => {
-        //   if (result.isConfirmed) {
-        //     document.getElementById('formImport').submit();
-        //   }
-        // });
-      }
+      const namaFile = fileInput.files[0].name;
+
+      // Konfirmasi sebelum upload
+      Swal.fire({
+        title: 'Import Data Siswa',
+        html: `Yakin ingin mengimport data dari:<br><b>${namaFile}</b>?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#198754',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fa-solid fa-file-import"></i> Ya, Import!',
+        cancelButtonText: 'Batal',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          // Kirim file via AJAX menggunakan FormData
+          const formData = new FormData();
+          formData.append('file_excel', fileInput.files[0]);
+
+          return fetch('import.data.php', {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => {
+              if (!response.ok) throw new Error('Koneksi ke server gagal (HTTP ' + response.status + ')');
+              return response.json();
+            })
+            .catch(err => {
+              Swal.showValidationMessage('Error: ' + err.message);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (!result.isConfirmed || !result.value) return;
+
+        const data = result.value;
+
+        if (data.status === 'error') {
+          // ── Notifikasi GAGAL ──────────────────────────────────────
+          Swal.fire({
+            icon: 'error',
+            title: 'Import Gagal!',
+            text: data.message,
+            confirmButtonText: 'OK'
+          });
+        } else {
+          // ── Notifikasi BERHASIL ───────────────────────────────────
+          let detailError = '';
+          if (data.errors && data.errors.length > 0) {
+            const tampil = data.errors.slice(0, 3).map(e => `<li>${e}</li>`).join('');
+            const sisanya = data.errors.length > 3 ? `<li>... dan ${data.errors.length - 3} error lainnya</li>` : '';
+            detailError = `<hr><p class="text-danger mb-1"><b>⚠️ ${data.errors.length} baris gagal:</b></p><ul class="text-start text-danger small">${tampil}${sisanya}</ul>`;
+          }
+
+          Swal.fire({
+            icon: data.errors && data.errors.length > 0 ? 'warning' : 'success',
+            title: 'Import Selesai!',
+            html: `
+              <table class="table table-sm text-start mt-2">
+                <tr><td>📄 <b>File</b></td><td>${data.nama_file}</td></tr>
+                <tr><td>📥 <b>Data baru</b></td><td><span class="badge bg-success">${data.berhasil}</span></td></tr>
+                <tr><td>🔄 <b>Diperbarui</b></td><td><span class="badge bg-primary">${data.diperbarui}</span></td></tr>
+                <tr><td>⏭️ <b>Baris kosong</b></td><td><span class="badge bg-secondary">${data.dilewati}</span></td></tr>
+              </table>
+              ${detailError}
+            `,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#198754',
+          }).then(() => {
+            // Reload halaman agar tabel data siswa terupdate
+            window.location.reload();
+          });
+        }
+      });
     }
   </script>
 </body>

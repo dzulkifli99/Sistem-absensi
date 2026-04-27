@@ -189,13 +189,13 @@ class ZKLibrary
     {
         $second = $data % 60;
         $data = $data / 60;
-        $minute = $data % 60;
+        $minute = (int) ($data % 60);
         $data = $data / 60;
-        $hour = $data % 24;
+        $hour = (int)($data % 24);
         $data = $data / 24;
-        $day = $data % 31 + 1;
+        $day = (int) ($data % 31 + 1);
         $data = $data / 31;
-        $month = $data % 12 + 1;
+        $month = (int)($data % 12 + 1);
         $data = $data / 12;
         $year = floor($data + 2000);
         $d = date("Y-m-d H:i:s", strtotime($year . '-' . $month . '-' . $day . ' ' . $hour . ':' . $minute . ':' . $second));

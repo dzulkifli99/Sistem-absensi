@@ -6,7 +6,7 @@ include "koneksi.php";
 // $conn = mysqli_connect("localhost", "root", "", "siswa");
 
 // koneksi mesin fingerprint
-$ip = "192.168.1.202";
+$ip = "192.168.1.201";
 $zk = new ZKLibrary($ip, 4370);
 
 // ngambil semua data dari database

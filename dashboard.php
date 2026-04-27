@@ -55,11 +55,9 @@ $jml_alpa = $res_alpa['jml'];
 </head>
 
 <body class="sb-nav-fixed">
-
-
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-2 ">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
             <h1 class="mt-4 text-light">SELAMAT DATANG <?= $_SESSION["username"]; ?></h1>
@@ -107,7 +105,9 @@ $jml_alpa = $res_alpa['jml'];
           updateDateTime();
         </script>
 
-        <div class="row text-white">
+
+
+        <div class="row text-white my-2 shadow">
           <div class="col-md-3">
             <div class="card bg-primary shadow">
               <div class="card-body">
@@ -163,6 +163,13 @@ $jml_alpa = $res_alpa['jml'];
           <?php
           $tanggal = date('Y-m-d');
 
+          $filter_kelas = "";
+          if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
+            $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+            // Filter siswa berdasarkan kelas yang mirip/mengandung angka tersebut
+            $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
+          }
+
           $sql = "
 SELECT 
 d.NIS,
@@ -176,6 +183,7 @@ FROM data d
 LEFT JOIN absensi a 
 ON d.NIS = a.NIS 
 AND a.tanggal = '$tanggal'
+$filter_kelas
 ORDER BY d.kelas, d.nama
 ";
 
@@ -192,9 +200,15 @@ ORDER BY d.kelas, d.nama
                 Cari Kelas
               </button>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="dashboard.php">10</a></li>
-                <li><a class="dropdown-item" href="dashboard.php">11</a></li>
-                <li><a class="dropdown-item" href="dashboard.php">12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php">Semua Kelas</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=10">Kelas 10</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=11">Kelas 11</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
+                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
 
               </ul>
               <thead>
@@ -207,7 +221,7 @@ ORDER BY d.kelas, d.nama
                   <th>Jam pulang</th>
                   <th>Tanggal</th>
                   <th>Status</th>
-                  <th>Aksi</th>
+                  <!-- <th>Aksi</th> -->
                 </tr>
               </thead>
 
@@ -218,7 +232,7 @@ ORDER BY d.kelas, d.nama
                 while ($row = mysqli_fetch_assoc($query)) {
                   $status = $row['status'] ?: 'Belum Absen';
                   $bg_color = "secondary";
-                  if ($status == 'Hadir') $bg_color = "success";
+                  if ($status == 'Hadir') $bg_color = "primary";
                   if ($status == 'Terlambat') $bg_color = "warning text-dark";
                   if ($status == 'Alpa') $bg_color = "danger";
                 ?>
@@ -232,9 +246,9 @@ ORDER BY d.kelas, d.nama
                     <td><?= $row['jam_pulang'] ?: '-' ?></td>
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
                     <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
-                    <td>
+                    <!-- <td>
                       <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
-                    </td>
+                    </td> -->
                   </tr>
 
                 <?php } ?>
@@ -248,14 +262,8 @@ ORDER BY d.kelas, d.nama
     </main>
     <footer class="py-4 bg-light mt-auto">
       <div class="container-fluid px-4">
-        <div
-          class="d-flex align-items-center justify-content-between small">
-          <div class="text-muted">Copyright &copy; Your Website 2023</div>
-          <div>
-            <a href="#">Privacy Policy</a>
-            &middot;
-            <a href="#">Terms &amp; Conditions</a>
-          </div>
+        <div class="d-flex align-items-center justify-content-between small">
+          <div class="text-muted">Copyright &copy; SMK Al-Maliki 2026</div>
         </div>
       </div>
     </footer>

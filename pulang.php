@@ -1,8 +1,36 @@
 <?php
+// 1. Jalankan session dan proteksi login di baris paling atas
+session_start();
+if (!isset($_SESSION["is_login"])) {
+  header("Location: login.php");
+  exit();
+}
+
+// 2. Sertakan koneksi dan file pendukung
+include "koneksi.php";
+
+// 3. Logika kueri database (pindahkan ke atas agar rapi)
+$tanggal = date('Y-m-d');
+$filter_kelas = "";
+if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
+    $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+    $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
+}
+
+$sql = "SELECT d.NIS, d.nama, d.kelas, a.jam_pulang, a.status, a.tanggal 
+        FROM data d 
+        LEFT JOIN absensi a ON d.NIS = a.NIS AND a.tanggal = '$tanggal' 
+        $filter_kelas
+        ORDER BY d.kelas, d.nama";
+
+$query = mysqli_query($koneksi, $sql);
+if (!$query) {
+  die(mysqli_error($koneksi));
+}
+
+// 4. Baru panggil header dan sidebar
 include "header.php";
 include "sidebar.php";
-
-
 ?>
 
 <!DOCTYPE html>
@@ -11,30 +39,22 @@ include "sidebar.php";
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>Dashboard - SMK Al-Maliki</title>
-  <link
-    href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
-    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
   <link href="css/styles.css" rel="stylesheet" />
-  <script
-    src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
-    crossorigin="anonymous"></script>
+  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="sb-nav-fixed">
   <div id="layoutSidenav_content">
     <main>
-      <div class="container-fluid px-4">
+      <div class="container-fluid px-2">
         <div class="card-body d-flex justify-content-between align-items-center p-4 bg-dark rounded-4 my-2 shadow">
           <div>
             <h1 class="mt-4 text-light">Absensi Pulang</h1>
             <ol class="breadcrumb mb-4">
-              <li class="breadcrumb-item "><a href="index.html">Dashboard</a></li>
+              <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
               <li class="breadcrumb-item active text-light">Absensi Pulang</li>
             </ol>
           </div>
@@ -43,191 +63,146 @@ include "sidebar.php";
               <i class="far fa-clock me-2"></i>
               <h3 id="clock" class="mb-0">00:00:00</h3>
             </div>
-            <div id="date" class="text-light fw-medium mt-1 ">Memuat Tanggal...</div>
+            <div id="date" class="text-light fw-medium mt-1">Memuat Tanggal...</div>
           </div>
         </div>
-        <script>
-          function updateDateTime() {
-            const now = new Date();
-
-            // 1. Logika Jam Digital
-            const time = now.toLocaleTimeString('id-ID', {
-              hour12: false,
-              hour: '2-digit',
-              minute: '2-digit',
-              second: '2-digit'
-            });
-            document.getElementById("clock").innerHTML = time.replace(/\./g, ':');
-
-            // 2. Logika Tanggal Indonesia
-            const options = {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            };
-            const dateString = now.toLocaleDateString('id-ID', options);
-            document.getElementById("date").innerHTML = dateString;
-          }
-
-          // Jalankan setiap detik
-          setInterval(updateDateTime, 1000);
-          updateDateTime();
-        </script>
 
         <div class="card mb-4">
           <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            DataTable Example
+            <strong>Data Absensi Pulang Hari Ini (<?= date('d-m-Y'); ?>) </strong>
           </div>
           <div class="card-body">
             <table id="datatablesSimple">
-              <thead>
-                <tr>
-                  <th>#</th>
-
-
-                  <th>Nama</th>
-                  <th>Kelas</th>
-                  <th>jam pulang</th>
-                  <th>status</th>
-                  <th>Tanggal</th>
-                  <th>aksi</th>
-                </tr>
-              </thead>
-              <tfoot>
-                <th>#</th>
-                <th>Nama</th>
-                <th>Kelas</th>
-                <th>jam pulang</th>
-                <th>status</th>
-                <th>Tanggal</th>
-                <th>aksi</th>
-                </tr>
-              </tfoot>
-              <tbody>
-                <th>1</th>
-                <th>doddy</th>
-                <th>X TKJ B</th>
-                <th>14.30</th>
-                <th>Hadir</th>
-                <th>2026-02-03</th>
-                <th>aksi</th>
-                </tr>
-                <tr>
-                  <td>Garrett Winters</td>
-                  <td>Accountant</td>
-                  <td>Tokyo</td>
-                  <td>63</td>
-                  <td>2011/07/25</td>
-                  <td>$170,750</td>
-                </tr>
-                <tr>
-                  <td>Ashton Cox</td>
-                  <td>Junior Technical Author</td>
-                  <td>San Francisco</td>
-                  <td>66</td>
-                  <td>2009/01/12</td>
-                  <td>$86,000</td>
-                </tr>
-                <tr>
-                  <td>Cedric Kelly</td>
-                  <td>Senior Javascript Developer</td>
-                  <td>Edinburgh</td>
-                  <td>22</td>
-                  <td>2012/03/29</td>
-                  <td>$433,060</td>
-                </tr>
-                <tr>
-                  <td>Airi Satou</td>
-                  <td>Accountant</td>
-                  <td>Tokyo</td>
-                  <td>33</td>
-                  <td>2008/11/28</td>
-                  <td>$162,700</td>
-                </tr>
-                <tr>
-                  <td>Brielle Williamson</td>
-                  <td>Integration Specialist</td>
-                  <td>New York</td>
-                  <td>61</td>
-                  <td>2012/12/02</td>
-                  <td>$372,000</td>
-                </tr>
-                <tr>
-                  <td>Herrod Chandler</td>
-                  <td>Sales Assistant</td>
-                  <td>San Francisco</td>
-                  <td>59</td>
-                  <td>2012/08/06</td>
-                  <td>$137,500</td>
-                </tr>
-                <tr>
-                  <td>Rhona Davidson</td>
-                  <td>Integration Specialist</td>
-                  <td>Tokyo</td>
-                  <td>55</td>
-                  <td>2010/10/14</td>
-                  <td>$327,900</td>
-                </tr>
-                <tr>
-                  <td>Colleen Hurst</td>
-                  <td>Javascript Developer</td>
-                  <td>San Francisco</td>
-                  <td>39</td>
-                  <td>2009/09/15</td>
-                  <td>$205,500</td>
-                </tr>
-                <tr>
-                  <td>Sonya Frost</td>
-                  <td>Software Engineer</td>
-                  <td>Edinburgh</td>
-                  <td>23</td>
-                  <td>2008/12/13</td>
-                  <td>$103,600</td>
-                </tr>
-                <tr>
-                  <td>Jena Gaines</td>
-                  <td>Office Manager</td>
-                  <td>London</td>
-                  <td>30</td>
-                  <td>2008/12/19</td>
-                  <td>$90,560</td>
-                </tr>
-              </tbody>
-            </table>
+              <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
+                Cari Kelas
+              </button>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="pulang.php">Semua Kelas</a></li>
+                <li><a class="dropdown-item" href="pulang.php?kelas=10">Kelas 10</a></li>
+                <li><a class="dropdown-item" href="pulang.php?kelas=11">Kelas 11</a></li>
+                <li><a class="dropdown-item" href="pulang.php?kelas=12">Kelas 12</a></li>
+              </ul>
           </div>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nama</th>
+              <th>Kelas</th>
+              <th>Jam Pulang</th>
+              <th>Status</th>
+              <th>Tanggal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php
+            $no = 1;
+            while ($row = mysqli_fetch_assoc($query)) {
+              // Logika Status Pulang Otomatis (Opsi 1)
+              $status_harian = $row['status'];
+              $jam_pulang = $row['jam_pulang'];
+              
+              if (in_array($status_harian, ['Izin', 'Sakit', 'Alpa'])) {
+                  // Jika dari pagi memang Izin / Sakit / Alpa, tetapkan status tersebut
+                  $status_tampil = $status_harian;
+                  if ($status_harian == 'Alpa') $bg_color = "danger";
+                  else $bg_color = "info text-dark";
+              } else {
+                  // Jika Hadir / Terlambat / Belum Absen
+                  if (!empty($jam_pulang)) {
+                      $status_tampil = "Sudah Pulang";
+                      $bg_color = "success";
+                  } else {
+                      $status_tampil = "Belum Pulang";
+                      $bg_color = "warning text-dark";
+                  }
+              }
+            ?>
+              <tr>
+                <td><?= $no++ ?></td>
+                <td><?= $row['nama'] ?></td>
+                <td><?= $row['kelas'] ?></td>
+                <td><?= $jam_pulang ?: '-' ?></td>
+                <td>
+                  <span class="badge bg-<?= $bg_color ?> p-2" style="width: 100px; font-size: 0.85rem;">
+                    <?= $status_tampil ?>
+                  </span>
+                </td>
+                <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
+              </tr>
+            <?php } ?>
+          </tbody>
+          </table>
         </div>
       </div>
-    </main>
-    <footer class="py-4 bg-light mt-auto">
-      <div class="container-fluid px-4">
-        <div
-          class="d-flex align-items-center justify-content-between small">
-          <div class="text-muted">Copyright &copy; Your Website 2023</div>
-          <div>
-            <a href="#">Privacy Policy</a>
-            &middot;
-            <a href="#">Terms &amp; Conditions</a>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
+  </main>
   </div>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    crossorigin="anonymous"></script>
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const time = now.toLocaleTimeString('id-ID', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+      document.getElementById("clock").innerHTML = time.replace(/\./g, ':');
+
+      const options = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+      document.getElementById("date").innerHTML = now.toLocaleDateString('id-ID', options);
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="js/scripts.js"></script>
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
-    crossorigin="anonymous"></script>
-  <script src="assets/demo/chart-area-demo.js"></script>
-  <script src="assets/demo/chart-bar-demo.js"></script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
   <script src="js/datatables-simple-demo.js"></script>
+
+  <script>
+    // Gunakan Event Delegation agar dropdown tetap berfungsi meskipun tabel dipindah halaman (pagination)
+    document.body.addEventListener('change', function(e) {
+      if (e.target.classList.contains('select-status')) {
+        const select = e.target;
+        const nis = select.getAttribute('data-nis');
+        const statusBaru = select.value;
+
+        // Beri efek visual sedang loading (opsional)
+        select.style.opacity = '0.5';
+
+        // Kirim data ke file update_status.php
+        fetch('update_status.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `nis=${nis}&status=${statusBaru}`
+          })
+          .then(res => res.text())
+          .then(data => {
+            if (data === "success") {
+              // Beri tanda sukses kecil (border hijau sesaat)
+              select.style.borderColor = '#198754';
+              setTimeout(() => {
+                select.style.borderColor = '';
+              }, 1000);
+            } else {
+              alert("Gagal update database!");
+            }
+          })
+          .finally(() => {
+            select.style.opacity = '1';
+          });
+      }
+    });
+  </script>
 </body>
 
 </html>
