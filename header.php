@@ -1,6 +1,14 @@
 <?php
+<<<<<<< HEAD
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
+=======
+session_start();
+if (isset($_POST["logout"])) {
+    session_unset();
+    session_destroy();
+    header("location:index.php");
+>>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
 }
 ?>
 

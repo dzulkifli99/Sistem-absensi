@@ -76,6 +76,10 @@ include "sidebar.php";
 
         <div class="card mb-4">
           <div class="card-header">
+<<<<<<< HEAD
+=======
+
+>>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
 
 
             <button type="button" class="btn btn-outline-primary float-end ms-2" data-bs-toggle="modal" data-bs-target="#modalTambah">

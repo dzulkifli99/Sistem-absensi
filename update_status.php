@@ -1,5 +1,9 @@
 <?php
 include "koneksi.php";
+<<<<<<< HEAD
+=======
+include "dashboard.php";
+>>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
 $tgl = date('Y-m-d');
 
 if (isset($_POST['nis']) && isset($_POST['status'])) {

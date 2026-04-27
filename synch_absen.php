@@ -31,6 +31,7 @@ if ($zk->connect()) {
         $query_set = mysqli_query($koneksi, "SELECT * FROM setting WHERE hari = '$hari_sekarang'");
         $data_setting = mysqli_fetch_assoc($query_set);
 
+<<<<<<< HEAD
         // Jika tabel setting kosong / sekolah diliburkan di setting (tidak ada hari ini), 
         // kita hentikan proses agar siswa tidak mendadak dapat Alpa karena auto-alpa
         if (!$data_setting) {
@@ -130,6 +131,60 @@ if ($zk->connect()) {
                 }
             }
         }
+=======
+        $jam_masuk      = $data_setting['jam_masuk'] ?? "07:00";
+        $batas_masuk    = $data_setting['batas_masuk'] ?? "07:15";
+        $jam_pulang_min = $data_setting['jam_pulang'] ?? "14:00";
+
+        // --- 2. LOGIKA AUTO ALPA (HANYA JALAN DI HARI KERJA) ---
+        $waktu_alpa_trigger = date('H:i', strtotime($batas_masuk . ' +1 hour'));
+        if (date('H:i') >= $waktu_alpa_trigger) {
+            mysqli_query($koneksi, "INSERT IGNORE INTO absensi (NIS, tanggal, status)
+                SELECT NIS, CURDATE(), 'Alpa'
+                FROM data
+                WHERE NIS NOT IN (SELECT NIS FROM absensi WHERE tanggal=CURDATE())");
+        }
+
+        // --- 3. PROSES LOG FINGERPRINT (HANYA JALAN DI HARI KERJA) ---
+        foreach ($logs as $log) {
+            $nis     = $log[1];
+            $waktu   = $log[3];
+            $tanggal = date('Y-m-d', strtotime($waktu));
+            $jam     = date('H:i:s', strtotime($waktu));
+
+            // Pastikan log yang diambil HANYA log tanggal hari ini agar tidak memproses data kadaluarsa
+            if ($tanggal != date('Y-m-d')) continue;
+
+            $cek_scan = mysqli_query($koneksi, "SELECT id FROM absensi WHERE NIS='$nis' AND last_scan='$waktu'");
+            if (mysqli_num_rows($cek_scan) > 0) continue;
+
+            $q_siswa = mysqli_query($koneksi, "SELECT nama, no_hp FROM data WHERE NIS='$nis'");
+            $siswa   = mysqli_fetch_assoc($q_siswa);
+            if (!$siswa) continue;
+
+            $cek_absensi = mysqli_query($koneksi, "SELECT * FROM absensi WHERE NIS='$nis' AND tanggal='$tanggal'");
+            $data_absen  = mysqli_fetch_assoc($cek_absensi);
+
+            if (!$data_absen || $data_absen['status'] == 'Alpa') {
+                $status = (strtotime($jam) <= strtotime($batas_masuk)) ? "Hadir" : "Terlambat";
+                if ($data_absen) {
+                    mysqli_query($koneksi, "UPDATE absensi SET jam_datang='$jam', last_scan='$waktu', status='$status' WHERE NIS='$nis' AND tanggal='$tanggal'");
+                } else {
+                    mysqli_query($koneksi, "INSERT INTO absensi (NIS, tanggal, jam_datang, last_scan, status) VALUES ('$nis', '$tanggal', '$jam', '$waktu', '$status')");
+                }
+
+                // Kirim WA Datang
+                $pesan = "Assalamu’alaikum Wr.Wb\n\nPemberitahuan Absensi:\nAlhamdulillah, Ananda {$siswa['nama']} telah tiba di sekolah pada pukul " . date('H:i', strtotime($jam)) . "\nStatus: $status\n\n— [SMK AL-MALIKI]";
+                kirimWA($siswa['no_hp'], $pesan);
+            } else if ($data_absen['jam_pulang'] == NULL && strtotime($jam) >= strtotime($jam_pulang_min)) {
+                mysqli_query($koneksi, "UPDATE absensi SET jam_pulang='$jam', last_scan='$waktu' WHERE NIS='$nis' AND tanggal='$tanggal'");
+
+                // Kirim WA Pulang
+                $pesan = "Assalamu’alaikum Wr.Wb\n\nAnanda {$siswa['nama']} telah pulang pada pukul " . date('H:i', strtotime($jam)) . ".\nSemoga selamat sampai rumah.\n\n— [SMK AL-MALIKI]";
+                kirimWA($siswa['no_hp'], $pesan);
+            }
+        }
+>>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
         echo "Sync sukses (Hari Kerja)!";
     } else {
         // JIKA HARI SABTU/MINGGU
