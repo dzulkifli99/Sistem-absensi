@@ -76,11 +76,18 @@ include "sidebar.php";
               <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
                 Cari Kelas
               </button>
-              <ul class="dropdown-menu">
+               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="datang.php">Semua Kelas</a></li>
-                <li><a class="dropdown-item" href="datang.php?kelas=10">Kelas 10</a></li>
-                <li><a class="dropdown-item" href="datang.php?kelas=11">Kelas 11</a></li>
-                <li><a class="dropdown-item" href="datang.php?kelas=12">Kelas 12</a></li>
+                <?php
+                include "koneksi.php";
+                $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
+                $q_k = mysqli_query($koneksi, $sql_k);
+                if ($q_k) {
+                  while ($rk = mysqli_fetch_array($q_k)) {
+                    echo '<li><a class="dropdown-item" href="datang.php?kelas=' . urlencode($rk['kelas']) . '">' . htmlspecialchars($rk['kelas']) . '</a></li>';
+                  }
+                }
+                ?>
               </ul>
           </div>
           <thead>

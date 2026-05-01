@@ -49,6 +49,7 @@ $jml_alpa = $res_alpa['jml'];
     href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
     rel="stylesheet" />
   <link href="css/styles.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script
     src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
     crossorigin="anonymous"></script>
@@ -201,15 +202,16 @@ ORDER BY d.kelas, d.nama
               </button>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="dashboard.php">Semua Kelas</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=10">Kelas 10</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=11">Kelas 11</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-                <li><a class="dropdown-item" href="dashboard.php?kelas=12">Kelas 12</a></li>
-
+                <?php
+                include "koneksi.php";
+                $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
+                $q_k = mysqli_query($koneksi, $sql_k);
+                if ($q_k) {
+                  while ($rk = mysqli_fetch_array($q_k)) {
+                    echo '<li><a class="dropdown-item" href="dashboard.php?kelas=' . urlencode($rk['kelas']) . '">' . htmlspecialchars($rk['kelas']) . '</a></li>';
+                  }
+                }
+                ?>
               </ul>
               <thead>
                 <tr>
@@ -283,33 +285,107 @@ ORDER BY d.kelas, d.nama
     crossorigin="anonymous"></script>
   <script src="js/datatables-simple-demo.js"></script>
 
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
   <!-- sinkron data -->
   <script>
     function jalankanSync() {
       const btn = document.getElementById('btnSync');
-      const status = document.getElementById('syncStatus');
 
-      // 1. Tampilan saat loading
+      // 1. Tampilkan loading SweetAlert2
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Menghubungkan...';
-      status.style.display = 'inline';
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menghubungkan...';
 
-      // 2. Panggil file PHP
+      Swal.fire({
+        title: 'Sinkronisasi Berjalan',
+        html: `
+          <div class="d-flex flex-column align-items-center gap-2 py-2">
+            <div class="spinner-border text-primary" style="width:3rem;height:3rem;"></div>
+            <p class="mb-0 text-muted">Menarik data dari mesin fingerprint...<br><small>Harap tunggu, proses ini bisa memakan beberapa detik.</small></p>
+          </div>`,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      // 2. Panggil synch_absen.php (sekarang return JSON)
       fetch('synch_absen.php')
-        .then(response => response.text())
+        .then(res => res.json())
         .then(data => {
-          alert('Proses Selesai: ' + data);
-          location.reload(); // Refresh halaman untuk melihat data terbaru di tabel
+          if (data.status === 'success') {
+            const d = data.detail;
+            Swal.fire({
+              icon: 'success',
+              title: data.title,
+              html: `
+                <p class="text-muted mb-3">${data.message}</p>
+                <div class="row text-center g-2">
+                  <div class="col-6">
+                    <div class="rounded-3 p-2" style="background:#e8f5e9;">
+                      <div class="fw-bold text-success" style="font-size:1.6rem">${d.datang}</div>
+                      <div class="small text-muted">Datang diproses</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="rounded-3 p-2" style="background:#e3f2fd;">
+                      <div class="fw-bold text-primary" style="font-size:1.6rem">${d.pulang}</div>
+                      <div class="small text-muted">Pulang diproses</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="rounded-3 p-2" style="background:#ffebee;">
+                      <div class="fw-bold text-danger" style="font-size:1.6rem">${d.alpa_baru}</div>
+                      <div class="small text-muted">Auto-Alpa baru</div>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="rounded-3 p-2" style="background:#f5f5f5;">
+                      <div class="fw-bold text-secondary" style="font-size:1.6rem">${d.dilewati}</div>
+                      <div class="small text-muted">Dilewati/duplikat</div>
+                    </div>
+                  </div>
+                </div>
+                <hr class="my-3">
+                <div class="text-start small text-muted">
+                  <i class="fas fa-clock me-1"></i> Sekarang: <strong>${d.sekarang}</strong> &nbsp;|&nbsp;
+                  <i class="fas fa-sign-in-alt me-1"></i> Batas masuk: <strong>${d.batas_masuk}</strong> &nbsp;|&nbsp;
+                  <i class="fas fa-user-slash me-1"></i> Alpa trigger: <strong>${d.alpa_trigger}</strong>
+                </div>`,
+              confirmButtonText: '<i class="fas fa-refresh me-1"></i> Refresh Data',
+              confirmButtonColor: '#0d6efd',
+            }).then(() => location.reload());
+
+          } else if (data.status === 'warning') {
+            Swal.fire({
+              icon: 'info',
+              title: data.title,
+              text: data.message,
+              confirmButtonColor: '#0d6efd',
+            });
+
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: data.title,
+              html: `<p>${data.message}</p><small class="text-muted">Pastikan mesin menyala dan IP 192.168.1.201 dapat diakses.</small>`,
+              confirmButtonColor: '#dc3545',
+            });
+          }
         })
         .catch(err => {
-          alert('Gagal terhubung ke mesin!');
+          Swal.fire({
+            icon: 'error',
+            title: 'Request Gagal',
+            text: 'Terjadi kesalahan saat menghubungi server. Cek koneksi atau log PHP.',
+            confirmButtonColor: '#dc3545',
+          });
           console.error(err);
         })
         .finally(() => {
-          // 3. Kembalikan tombol ke asal
           btn.disabled = false;
           btn.innerHTML = '<i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin';
-          status.style.display = 'none';
         });
     }
   </script>

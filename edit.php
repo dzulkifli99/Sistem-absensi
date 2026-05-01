@@ -26,9 +26,10 @@ if (!$data) {
 }
 
 /* =========================
-   PROSES UPDATE
+   PROSES UPDATE → return JSON
 ========================= */
 if (isset($_POST['simpan'])) {
+    header('Content-Type: application/json');
 
     $jam_masuk    = mysqli_real_escape_string($koneksi, $_POST['jam_masuk']);
     $batas_masuk  = mysqli_real_escape_string($koneksi, $_POST['batas_masuk']);
@@ -44,13 +45,11 @@ if (isset($_POST['simpan'])) {
     ");
 
     if ($update) {
-        echo "<script>
-            alert('Data berhasil diupdate!');
-            window.location='setting.php';
-        </script>";
+        echo json_encode(['status' => 'success', 'message' => "Setting hari <b>{$data['hari']}</b> berhasil diperbarui!"]);
     } else {
-        echo "Gagal Update: " . mysqli_error($koneksi);
+        echo json_encode(['status' => 'error', 'message' => 'Gagal update: ' . mysqli_error($koneksi)]);
     }
+    exit;
 }
 ?>
 
@@ -62,7 +61,6 @@ if (isset($_POST['simpan'])) {
     <link href="css/styles.css" rel="stylesheet" />
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
     <link rel="icon" href="assets/img/smalkis.png" type="image/png" sizes="192x192">
-
 </head>
 
 <body>
@@ -73,8 +71,7 @@ if (isset($_POST['simpan'])) {
                 Edit Setting Hari <?= htmlspecialchars($data['hari']); ?>
             </h3>
 
-            <form method="POST">
-
+            <form id="formSetting">
                 <div class="mb-3">
                     <label>Jam Masuk</label>
                     <input type="time" name="jam_masuk"
@@ -108,14 +105,56 @@ if (isset($_POST['simpan'])) {
                         ← Kembali
                     </a>
 
-                    <button type="submit" name="simpan" class="btn btn-primary">
+                    <button type="button" id="btnSimpanSetting" class="btn btn-primary">
                         <i class="fas fa-floppy-disk"></i> Simpan
                     </button>
                 </div>
-
             </form>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="js/scripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById('btnSimpanSetting').addEventListener('click', function () {
+            const form   = document.getElementById('formSetting');
+            if (!form.checkValidity()) { form.reportValidity(); return; }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+            const fd = new FormData(form);
+            fd.append('simpan', '1');
+
+            fetch('edit.php?id=<?= $id ?>', { method: 'POST', body: fd })
+                .then(res => {
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return res.json();
+                })
+                .then(data => {
+                    if (data.status === 'success') {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            html: data.message,
+                            confirmButtonColor: '#0d6efd',
+                            timer: 2000,
+                            timerProgressBar: true
+                        }).then(() => window.location.href = 'setting.php');
+                    } else {
+                        Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+                    }
+                })
+                .catch(err => Swal.fire('Error!', err.message, 'error'))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan';
+                });
+        });
+    </script>
 
 </body>
 

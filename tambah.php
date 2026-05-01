@@ -1,55 +1,65 @@
 <?php
+header('Content-Type: application/json');
+
+require 'koneksi.php';
 require 'zklibrary.php';
-include "koneksi.php";
 
-// // koneksi database
-// $conn = mysqli_connect("localhost", "root", "", "siswa");
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING);
+ini_set('display_errors', 0);
 
-// koneksi mesin fingerprint
-$ip = "192.168.1.201";
-$zk = new ZKLibrary($ip, 4370);
+// Konfigurasi IP Mesin Fingerprint (Sama seperti di synch_absen.php)
+$devices = [
+    ['ip' => '192.168.1.201', 'port' => 4370],
+    ['ip' => '192.168.1.202', 'port' => 4370] // Tambahkan IP mesin kedua di sini
+];
 
-// ngambil semua data dari database
-if ($zk->connect()) {
-
-    echo "Koneksi ke mesin berhasil<br>";
-
-    $zk->disableDevice();
-
-    // ambil semua siswa dari database
-    $query = mysqli_query($koneksi, "SELECT * FROM data");
-
-    while ($row = mysqli_fetch_assoc($query)) {
-
-        $nis = $row['NIS'];
-        $nama = $row['nama'];
-
-        // kirim ke mesin
-        $result = $zk->setUser($nis, $nis, $nama, "", 0);
-
-        echo "Kirim user: $nama ($nis) <br>";
-    }
-
-    $zk->enableDevice();
-    $zk->disconnect();
-
-    echo "<br>Semua data berhasil dikirim!";
+// Ambil semua data siswa dari database
+$query = mysqli_query($koneksi, "SELECT * FROM data");
+$siswa_data = [];
+while ($row = mysqli_fetch_assoc($query)) {
+    $siswa_data[] = $row;
 }
 
-// jika tambah 1 data
-// if ($zk->connect()) {
+$connected_devices = 0;
+$failed_devices = [];
 
-//     $zk->disableDevice();
+foreach ($devices as $dev) {
+    $zk = new ZKLibrary($dev['ip'], $dev['port']);
+    if ($zk->connect()) {
+        $zk->disableDevice();
 
-//     $result = $zk->setUser(12, "12345", "TEST", "", 0);
-//     var_dump($result);
+        // Kirim data tiap siswa ke mesin
+        foreach ($siswa_data as $row) {
+            $nis = $row['NIS'];
+            $nama = $row['nama'];
+            
+            // setUser(uid, userid, name, password, role)
+            $zk->setUser($nis, $nis, $nama, "", 0);
+        }
 
-//     $users = $zk->getUser();
-//     print_r($users);
+        $zk->enableDevice();
+        $zk->disconnect();
+        $connected_devices++;
+    } else {
+        $failed_devices[] = $dev['ip'];
+    }
+}
 
-//     $zk->enableDevice();
-//     $zk->disconnect();
+if ($connected_devices > 0) {
+    $pesan = "Berhasil mengirim " . count($siswa_data) . " data siswa ke $connected_devices mesin.";
+    if (count($failed_devices) > 0) {
+        $pesan .= " Gagal terhubung ke: " . implode(", ", $failed_devices);
+    }
 
-// } else {
-//     echo "Koneksi gagal";
-// }
+    echo json_encode([
+        'status'  => 'success',
+        'title'   => 'Berhasil Terkirim',
+        'message' => $pesan
+    ]);
+} else {
+    echo json_encode([
+        'status'  => 'error',
+        'title'   => 'Koneksi Gagal',
+        'message' => 'Tidak dapat terhubung ke semua mesin fingerprint (' . implode(", ", $failed_devices) . '). Pastikan mesin menyala dan terhubung ke jaringan.'
+    ]);
+}

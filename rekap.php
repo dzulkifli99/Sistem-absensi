@@ -94,13 +94,10 @@ include "sidebar.php";
             }
 
             #area-cetak {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
+                position: static !important;
                 width: 100% !important;
                 margin: 0 !important;
-                /* Berikan padding manual karena margin kertas dinolkan */
-                padding: 1cm !important;
+                padding: 0 !important;
             }
 
             .no-print {
@@ -110,9 +107,26 @@ include "sidebar.php";
             .table-bordered th,
             .table-bordered td {
                 border: 1px solid black !important;
-                padding: 4px !important;
-                font-size: 11px;
-                /* Teks dikecilkan agar muat banyak kolom */
+                padding: 2px !important;
+                font-size: 9px !important;
+                /* Teks lebih kecil dan padding minim agar muat banyak kolom */
+            }
+
+            .table th {
+                background-color: #f8f9fa !important;
+                -webkit-print-color-adjust: exact;
+                white-space: nowrap !important;
+                padding: 2px !important;
+            }
+            
+            .table td {
+                white-space: nowrap !important;
+            }
+
+            /* Kolom Nama bisa mengambil sisa ruang tapi tidak terlalu lebar */
+            .nama-siswa {
+                white-space: normal !important;
+                min-width: 100px;
             }
 
             .table th {
@@ -271,7 +285,7 @@ include "sidebar.php";
                                 <thead class="text-center bg-light">
                                     <tr>
                                         <th rowspan="2" class="align-middle">No</th>
-                                        <th rowspan="2" class="align-middle" style="min-width: 150px;">Nama</th>
+                                        <th rowspan="2" class="align-middle nama-siswa">Nama</th>
                                         <th colspan="<?= count($dates) ?>" class="align-middle">Tanggal Pertemuan</th>
                                         <th colspan="4" class="align-middle">Total</th>
                                     </tr>
@@ -312,7 +326,7 @@ include "sidebar.php";
                                     ?>
                                         <tr>
                                             <td class="text-center"><?= $no++ ?></td>
-                                            <td><?= htmlspecialchars($nama) ?></td>
+                                            <td class="nama-siswa"><?= htmlspecialchars($nama) ?></td>
 
                                             <!-- Looping Tanggal Data Kehadiran -->
                                             <?php if (count($dates) == 0): ?>

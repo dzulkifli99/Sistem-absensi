@@ -76,11 +76,10 @@ include "sidebar.php";
 
         <div class="card mb-4">
           <div class="card-header">
-<<<<<<< HEAD
-=======
 
->>>>>>> 036358afdc33bc1df96efde6b36c3e1d64f63526
-
+            <button type="button" class="btn btn-outline-info float-end ms-2" onclick="kirimKeMesin()">
+              <i class="fa-solid fa-upload"></i> Kirim ke Mesin
+            </button>
 
             <button type="button" class="btn btn-outline-primary float-end ms-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
               <i class="fa-solid fa-user-plus"></i> Tambah
@@ -180,7 +179,7 @@ include "sidebar.php";
               <h5 class="modal-title" id="modalTambahLabel"><i class="fa-solid fa-user-plus me-2"></i> Tambah Data Siswa</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="aksi_siswa.php" method="POST">
+            <form id="formTambah">
               <div class="modal-body">
                 <div class="mb-3">
                   <label for="nis" class="form-label fw-bold">NIS</label>
@@ -201,7 +200,7 @@ include "sidebar.php";
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="tambah" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan</button>
+                <button type="button" id="btnSimpanTambah" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan</button>
               </div>
             </form>
           </div>
@@ -216,7 +215,7 @@ include "sidebar.php";
               <h5 class="modal-title" id="modalEditLabel"><i class="fa-solid fa-pen me-2"></i> Edit Data Siswa</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="aksi_siswa.php" method="POST">
+            <form id="formEdit">
               <div class="modal-body">
                 <input type="hidden" id="edit_nis_lama" name="nis_lama">
                 <div class="mb-3">
@@ -238,7 +237,7 @@ include "sidebar.php";
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" name="edit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
+                <button type="button" id="btnSimpanEdit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
               </div>
             </form>
           </div>
@@ -274,6 +273,16 @@ include "sidebar.php";
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
+    // ── Helper: kirim form via AJAX, return Promise JSON ─────────────────────
+    function ajaxPost(url, formData) {
+      return fetch(url, { method: 'POST', body: formData })
+        .then(res => {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        });
+    }
+
+    // ── HAPUS ─────────────────────────────────────────────────────────────────
     function konfirmasiHapus(id, elemen) {
       Swal.fire({
         title: 'Apakah anda yakin?',
@@ -308,34 +317,97 @@ include "sidebar.php";
         }
       })
     }
-  </script>
-  <!-- script manipulasi modal edit -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // Menggunakan Event Delegation karena Simple-DataTables me-render ulang dom pada tabel
-      document.body.addEventListener('click', function(e) {
-        // Cek jika elemen yang diklik atau elemen di dalamnya memiliki class btn-edit
-        const btn = e.target.closest('.btn-edit');
 
-        if (btn) {
-          // Ambil data dari atribut tombol
-          const id = btn.getAttribute('data-id');
-          const nama = btn.getAttribute('data-nama');
-          const kelas = btn.getAttribute('data-kelas');
-          const hp = btn.getAttribute('data-hp');
+    // ── TAMBAH ────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
 
-          // Masukkan data ke dalam form modal
-          document.getElementById('edit_nis_lama').value = id;
-          document.getElementById('edit_nis').value = id;
-          document.getElementById('edit_nama').value = nama;
-          document.getElementById('edit_kelas').value = kelas;
-          document.getElementById('edit_no_hp').value = hp;
+      document.getElementById('btnSimpanTambah').addEventListener('click', function () {
+        const form = document.getElementById('formTambah');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
 
-          // Munculkan modal
-          var myModal = new bootstrap.Modal(document.getElementById('modalEdit'));
-          myModal.show();
-        }
+        const fd = new FormData(form);
+        fd.append('tambah', '1');
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        ajaxPost('aksi_siswa.php', fd)
+          .then(data => {
+            if (data.status === 'success') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                html: data.message,
+                confirmButtonColor: '#0d6efd',
+                timer: 2000,
+                timerProgressBar: true
+              }).then(() => window.location.reload());
+
+              // Tutup modal
+              bootstrap.Modal.getInstance(document.getElementById('modalTambah')).hide();
+              form.reset();
+            } else {
+              Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+            }
+          })
+          .catch(err => Swal.fire('Error!', err.message, 'error'))
+          .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-save me-1"></i> Simpan';
+          });
       });
+
+      // ── EDIT ───────────────────────────────────────────────────────────────
+      // Isi modal edit via event delegation (Simple-DataTables re-render DOM)
+      document.body.addEventListener('click', function (e) {
+        const btn = e.target.closest('.btn-edit');
+        if (!btn) return;
+
+        document.getElementById('edit_nis_lama').value = btn.dataset.id;
+        document.getElementById('edit_nis').value      = btn.dataset.id;
+        document.getElementById('edit_nama').value     = btn.dataset.nama;
+        document.getElementById('edit_kelas').value    = btn.dataset.kelas;
+        document.getElementById('edit_no_hp').value    = btn.dataset.hp;
+
+        new bootstrap.Modal(document.getElementById('modalEdit')).show();
+      });
+
+      document.getElementById('btnSimpanEdit').addEventListener('click', function () {
+        const form = document.getElementById('formEdit');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        const fd = new FormData(form);
+        fd.append('edit', '1');
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        ajaxPost('aksi_siswa.php', fd)
+          .then(data => {
+            if (data.status === 'success') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Diperbarui!',
+                html: data.message,
+                confirmButtonColor: '#0d6efd',
+                timer: 2000,
+                timerProgressBar: true
+              }).then(() => window.location.reload());
+
+              bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
+            } else {
+              Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+            }
+          })
+          .catch(err => Swal.fire('Error!', err.message, 'error'))
+          .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-save me-1"></i> Simpan Perubahan';
+          });
+      });
+
     });
   </script>
 
@@ -422,6 +494,48 @@ include "sidebar.php";
             // Reload halaman agar tabel data siswa terupdate
             window.location.reload();
           });
+        }
+      });
+    }
+
+    // ── KIRIM KE MESIN FINGERPRINT ─────────────────────────────────────────────
+    function kirimKeMesin() {
+      Swal.fire({
+        title: 'Kirim Data ke Mesin?',
+        html: "Tindakan ini akan mengirim <b>seluruh data siswa</b> ke mesin fingerprint.<br>Proses ini mungkin membutuhkan waktu beberapa saat.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#0dcaf0',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: '<i class="fa-solid fa-upload"></i> Ya, Kirim!',
+        cancelButtonText: 'Batal',
+        showLoaderOnConfirm: true,
+        preConfirm: () => {
+          return fetch('tambah.php', { method: 'POST' })
+            .then(response => {
+              if (!response.ok) throw new Error(response.statusText);
+              return response.json();
+            })
+            .catch(error => {
+              Swal.showValidationMessage(`Request gagal: ${error}`);
+            });
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then((result) => {
+        if (result.isConfirmed) {
+          if (result.value.status === 'success') {
+            Swal.fire({
+              icon: 'success',
+              title: result.value.title,
+              text: result.value.message,
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: result.value.title,
+              text: result.value.message,
+            });
+          }
         }
       });
     }

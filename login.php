@@ -29,8 +29,8 @@ if (isset($_POST['login'])) {
       header("Location: dashboard.php");
       exit();
     } else {
-      // Password salah
-      echo "<script>alert('Password Salah!');</script>";
+      // Password salah → set flag untuk SweetAlert2
+      $pesan_swal = 'Password yang Anda masukkan salah!';
     }
   } else {
     $pesan = '<div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -40,6 +40,7 @@ if (isset($_POST['login'])) {
   }
 }
 
+$pesan_swal = $pesan_swal ?? '';
 ?>
 
 
@@ -119,10 +120,22 @@ if (isset($_POST['login'])) {
     </div>
 
   </div>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="js/scripts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <?php if (!empty($pesan_swal)): ?>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Gagal!',
+        text: '<?= addslashes($pesan_swal) ?>',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Coba Lagi'
+      });
+    });
+  </script>
+  <?php endif; ?>
 </body>
 
 </html>

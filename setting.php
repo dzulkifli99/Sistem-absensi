@@ -86,7 +86,15 @@ if (!isset($_SESSION["is_login"])) {
                           <td><?= $setting['jam_pulang']; ?></td>
                           <td><?= $setting['batas_pulang']; ?></td>
                           <td>
-                            <a href="edit.php?id=<?php echo $setting['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
+                            <button type="button" class="btn btn-warning btn-sm btn-edit"
+                              data-id="<?= $setting['id']; ?>"
+                              data-hari="<?= $setting['hari']; ?>"
+                              data-jam-masuk="<?= $setting['jam_masuk']; ?>"
+                              data-batas-masuk="<?= $setting['batas_masuk']; ?>"
+                              data-jam-pulang="<?= $setting['jam_pulang']; ?>"
+                              data-batas-pulang="<?= $setting['batas_pulang']; ?>">
+                              <i class="fa-solid fa-pen"></i> Edit
+                            </button>
                           </td>
 
                         </tr>
@@ -113,10 +121,108 @@ if (!isset($_SESSION["is_login"])) {
     </div>
 
   </div>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    crossorigin="anonymous"></script>
+
+  <!-- Modal Edit Setting -->
+  <div class="modal fade" id="modalEditSetting" tabindex="-1" aria-labelledby="modalEditSettingLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content text-dark">
+        <div class="modal-header pb-3">
+          <h5 class="modal-title" id="modalEditSettingLabel"><i class="fa-solid fa-clock me-2"></i> Edit Setting Jam: <span id="hariTitle"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="formEditSetting">
+          <div class="modal-body">
+            <input type="hidden" id="edit_id" name="id">
+            <div class="mb-3">
+              <label for="edit_jam_masuk" class="form-label fw-bold">Jam Masuk</label>
+              <input type="time" class="form-control" id="edit_jam_masuk" name="jam_masuk" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit_batas_masuk" class="form-label fw-bold">Batas Masuk</label>
+              <input type="time" class="form-control" id="edit_batas_masuk" name="batas_masuk" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit_jam_pulang" class="form-label fw-bold">Jam Pulang</label>
+              <input type="time" class="form-control" id="edit_jam_pulang" name="jam_pulang" required>
+            </div>
+            <div class="mb-3">
+              <label for="edit_batas_pulang" class="form-label fw-bold">Batas Pulang</label>
+              <input type="time" class="form-control" id="edit_batas_pulang" name="batas_pulang" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" id="btnSimpanSetting" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
   <script src="js/scripts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      
+      // Buka modal saat tombol edit ditekan
+      const editButtons = document.querySelectorAll('.btn-edit');
+      editButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+          document.getElementById('edit_id').value = this.dataset.id;
+          document.getElementById('hariTitle').textContent = this.dataset.hari;
+          document.getElementById('edit_jam_masuk').value = this.dataset.jamMasuk;
+          document.getElementById('edit_batas_masuk').value = this.dataset.batasMasuk;
+          document.getElementById('edit_jam_pulang').value = this.dataset.jamPulang;
+          document.getElementById('edit_batas_pulang').value = this.dataset.batasPulang;
+          
+          new bootstrap.Modal(document.getElementById('modalEditSetting')).show();
+        });
+      });
+
+      // Proses simpan data via AJAX
+      document.getElementById('btnSimpanSetting').addEventListener('click', function () {
+        const form = document.getElementById('formEditSetting');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
+
+        const fd = new FormData(form);
+        fd.append('simpan', '1');
+        const id = document.getElementById('edit_id').value;
+
+        fetch('edit.php?id=' + id, { method: 'POST', body: fd })
+          .then(res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(data => {
+            if (data.status === 'success') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                html: data.message,
+                confirmButtonColor: '#0d6efd',
+                timer: 2000,
+                timerProgressBar: true
+              }).then(() => window.location.reload());
+              
+              bootstrap.Modal.getInstance(document.getElementById('modalEditSetting')).hide();
+            } else {
+              Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+            }
+          })
+          .catch(err => Swal.fire('Error!', err.message, 'error'))
+          .finally(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-save me-1"></i> Simpan Perubahan';
+          });
+      });
+    });
+  </script>
 </body>
 
 </html>
