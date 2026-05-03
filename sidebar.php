@@ -1,6 +1,8 @@
 <?php
-
-
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+$username_ses = $_SESSION['username'] ?? 'User';
 ?>
 
 <!DOCTYPE html>
@@ -15,7 +17,7 @@
 <body>
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+            <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
                 <div class="sb-sidenav-menu">
                     <div class="nav">
                         <div class="sb-sidenav-menu-heading">Core</div>
@@ -85,30 +87,38 @@
                             </nav>
                         </div>
                         <div class="sb-sidenav-menu-heading">Addons</div>
+                        
                         <a class="nav-link" href="notifikasi.php">
                             <div class="sb-nav-link-icon">
                                 <i class="fa-solid fa-message"></i></i>
                             </div>
                             Notifikasi
                         </a>
+
                         <a class="nav-link" href="data_siswa.php">
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-users"></i></div>
                             Data siswa
                         </a>
+
                         <div class="sb-sidenav-menu-heading">Pengaturan</div>
                         <a class="nav-link" href="setting.php">
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-gear"></i></div>
                             Setting
                         </a>
-                        <a class="nav-link text-danger" href="logout.php">
+                        <a class="nav-link" href="kelola_admin.php">
+                            <div class="sb-nav-link-icon"><i class="fa-solid fa-user-shield"></i></div>
+                            Kelola Admin
+                        </a>
+
+                        <hr class="mt-4 mb-0 text-white-50">
+                        <a class="nav-link text-danger mt-2" href="logout.php">
                             <div class="sb-nav-link-icon"><i class="fa-solid fa-right-from-bracket text-danger"></i></div>
                             Logout
                         </a>
                     </div>
                 </div>
                 <div class="sb-sidenav-footer">
-                    <div class="small">Logged in as:</div>
-                    SMK Al-Maliki
+                    <div class="small">Logged in as: <?= htmlspecialchars($username_ses) ?></div>
                 </div>
             </nav>
         </div>

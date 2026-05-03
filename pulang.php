@@ -13,13 +13,13 @@ include "koneksi.php";
 $tanggal = date('Y-m-d');
 $filter_kelas = "";
 if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
-    $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
-    $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
+  $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
+  $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
 }
 
-$sql = "SELECT d.NIS, d.nama, d.kelas, a.jam_pulang, a.status, a.tanggal 
+$sql = "SELECT d.id_siswa, d.nama, d.kelas, a.jam_pulang, a.status, a.tanggal 
         FROM data d 
-        LEFT JOIN absensi a ON d.NIS = a.NIS AND a.tanggal = '$tanggal' 
+        LEFT JOIN absensi a ON d.id_siswa = a.id_siswa AND a.tanggal = '$tanggal' 
         $filter_kelas
         ORDER BY d.kelas, d.nama";
 
@@ -79,7 +79,6 @@ include "sidebar.php";
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="pulang.php">Semua Kelas</a></li>
                 <?php
-                include "koneksi.php";
                 $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
                 $q_k = mysqli_query($koneksi, $sql_k);
                 if ($q_k) {

@@ -17,9 +17,9 @@ if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
   $filter_kelas = " WHERE d.kelas LIKE '%$kls%' ";
 }
 
-$sql = "SELECT d.NIS, d.nama, d.kelas, a.jam_datang, a.status, a.tanggal 
+$sql = "SELECT d.id_siswa, d.nama, d.kelas, a.jam_datang, a.status, a.tanggal 
         FROM data d 
-        LEFT JOIN absensi a ON d.NIS = a.NIS AND a.tanggal = '$tanggal' 
+        LEFT JOIN absensi a ON d.id_siswa = a.id_siswa AND a.tanggal = '$tanggal' 
         $filter_kelas
         ORDER BY d.kelas, d.nama";
 
@@ -79,7 +79,6 @@ include "sidebar.php";
                <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="datang.php">Semua Kelas</a></li>
                 <?php
-                include "koneksi.php";
                 $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
                 $q_k = mysqli_query($koneksi, $sql_k);
                 if ($q_k) {
@@ -118,7 +117,7 @@ include "sidebar.php";
                 <td><?= $row['jam_datang'] ?: '-' ?></td>
                 <td>
                   <select class="form-select form-select-sm select-status bg-<?= $bg_color ?>"
-                    data-nis="<?= $row['NIS'] ?>"
+                    data-nis="<?= $row['id_siswa'] ?>"
                     style="width: 120px;">
                     <option value="Hadir" <?= $status == 'Hadir' ? 'selected' : '' ?>>Hadir</option>
                     <option value="Terlambat" <?= $status == 'Terlambat' ? 'selected' : '' ?>>Terlambat</option>

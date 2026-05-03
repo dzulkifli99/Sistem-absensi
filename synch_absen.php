@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 
 require 'koneksi.php';
 require 'zklibrary.php';
-require 'notifikasi.php';
+require 'helper_wa.php';
 
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE & ~E_WARNING);
 ini_set('display_errors', 0);
@@ -47,11 +47,12 @@ if (!$data_setting) {
 // Gunakan !empty() agar empty string dari DB tetap fallback ke nilai default
 $jam_masuk      = !empty($data_setting['jam_masuk'])    ? $data_setting['jam_masuk']    : '07:00';
 $batas_masuk    = !empty($data_setting['batas_masuk'])   ? $data_setting['batas_masuk']   : '07:15';
+$toleransi      = isset($data_setting['toleransi_terlambat']) ? (int)$data_setting['toleransi_terlambat'] : 15;
 $jam_pulang_min = !empty($data_setting['jam_pulang'])    ? $data_setting['jam_pulang']    : '14:00';
 $batas_pulang   = !empty($data_setting['batas_pulang'])  ? $data_setting['batas_pulang']  : '14:30';
 
 // --- HITUNG WAKTU TURUNAN ---
-$batas_terlambat    = date('H:i', strtotime(date('Y-m-d') . ' ' . $batas_masuk . ' +15 minutes'));
+$batas_terlambat    = date('H:i', strtotime(date('Y-m-d') . ' ' . $batas_masuk . " +$toleransi minutes"));
 $waktu_alpa_trigger = date('H:i', strtotime(date('Y-m-d') . ' ' . $batas_terlambat . ' +1 minute'));
 $waktu_sekarang     = date('H:i');
 
@@ -64,25 +65,25 @@ $count_skip     = 0;
 // --- 2. LOGIKA AUTO ALPA ---
 if ($waktu_sekarang >= $waktu_alpa_trigger) {
     $q_alpa = mysqli_query($koneksi, "
-        SELECT NIS, nama, no_hp 
+        SELECT id_siswa, nama, no_hp 
         FROM data 
-        WHERE NIS NOT IN (
-            SELECT NIS FROM absensi WHERE tanggal = CURDATE()
+        WHERE id_siswa NOT IN (
+            SELECT id_siswa FROM absensi WHERE tanggal = CURDATE()
         )
     ");
 
     while ($siswa_alpa = mysqli_fetch_assoc($q_alpa)) {
-        $nis_alpa   = $siswa_alpa['NIS'];
+        $nis_alpa   = $siswa_alpa['id_siswa'];
         $nama_alpa  = $siswa_alpa['nama'];
         $no_hp_alpa = $siswa_alpa['no_hp'];
 
-        $insert_ok = mysqli_query($koneksi, "INSERT INTO absensi (NIS, tanggal, status) VALUES ('$nis_alpa', CURDATE(), 'Alpa')");
+        $insert_ok = mysqli_query($koneksi, "INSERT INTO absensi (id_siswa, tanggal, status) VALUES ('$nis_alpa', CURDATE(), 'Alpa')");
 
         if ($insert_ok && mysqli_affected_rows($koneksi) > 0) {
             $count_alpa++;
             if (!empty($no_hp_alpa)) {
                 $pesan_alpa = "Assalamu'alaikum Wr.Wb\n\nPemberitahuan Absensi:\nKami informasikan bahwa Ananda {$nama_alpa} belum hadir di sekolah hingga pukul {$waktu_alpa_trigger}.\nStatus: Alpa\n\nMohon konfirmasi keterangannya kepada wali kelas.\n\n— [SMK AL-MALIKI]";
-                kirimWA($no_hp_alpa, $pesan_alpa);
+                queueWA($no_hp_alpa, $pesan_alpa);
             }
         }
     }
@@ -134,14 +135,14 @@ if ($connected_devices > 0) {
         if (strtotime($jam) < strtotime(date('Y-m-d') . ' ' . $jam_masuk)) { $count_skip++; continue; }
 
         // Skip jika scan ini sudah pernah diproses
-        $cek_scan = mysqli_query($koneksi, "SELECT id FROM absensi WHERE NIS='$nis' AND last_scan='$waktu'");
+        $cek_scan = mysqli_query($koneksi, "SELECT id FROM absensi WHERE id_siswa='$nis' AND last_scan='$waktu'");
         if (mysqli_num_rows($cek_scan) > 0) { $count_skip++; continue; }
 
-        $q_siswa = mysqli_query($koneksi, "SELECT nama, no_hp FROM data WHERE NIS='$nis'");
+        $q_siswa = mysqli_query($koneksi, "SELECT nama, no_hp FROM data WHERE id_siswa='$nis'");
         $siswa   = mysqli_fetch_assoc($q_siswa);
         if (!$siswa) { $count_skip++; continue; }
 
-        $cek_absensi = mysqli_query($koneksi, "SELECT * FROM absensi WHERE NIS='$nis' AND tanggal='$tanggal'");
+        $cek_absensi = mysqli_query($koneksi, "SELECT * FROM absensi WHERE id_siswa='$nis' AND tanggal='$tanggal'");
         $data_absen  = mysqli_fetch_assoc($cek_absensi);
 
         $is_waktu_pulang = strtotime($jam) >= strtotime(date('Y-m-d') . ' ' . $jam_pulang_min);
@@ -154,14 +155,14 @@ if ($connected_devices > 0) {
                 $status = (strtotime($jam) <= strtotime(date('Y-m-d') . ' ' . $batas_masuk)) ? 'Hadir' : 'Terlambat';
 
                 if ($data_absen) {
-                    mysqli_query($koneksi, "UPDATE absensi SET jam_datang='$jam', last_scan='$waktu', status='$status' WHERE NIS='$nis' AND tanggal='$tanggal'");
+                    mysqli_query($koneksi, "UPDATE absensi SET jam_datang='$jam', last_scan='$waktu', status='$status' WHERE id_siswa='$nis' AND tanggal='$tanggal'");
                 } else {
-                    mysqli_query($koneksi, "INSERT INTO absensi (NIS, tanggal, jam_datang, last_scan, status) VALUES ('$nis', '$tanggal', '$jam', '$waktu', '$status')");
+                    mysqli_query($koneksi, "INSERT INTO absensi (id_siswa, tanggal, jam_datang, last_scan, status) VALUES ('$nis', '$tanggal', '$jam', '$waktu', '$status')");
                 }
 
                 $jam_fmt = date('H:i', strtotime($jam));
                 $pesan = "Assalamu'alaikum Wr.Wb\n\nPemberitahuan Absensi:\nAlhamdulillah, Ananda {$siswa['nama']} telah tiba di sekolah pada pukul {$jam_fmt}\nStatus: {$status}\n\n— [SMK AL-MALIKI]";
-                kirimWA($siswa['no_hp'], $pesan);
+                queueWA($siswa['no_hp'], $pesan);
                 $count_datang++;
             } else {
                 $count_skip++;
@@ -169,16 +170,16 @@ if ($connected_devices > 0) {
         } else {
             // SCAN PULANG (SORE)
             if (!$data_absen) {
-                mysqli_query($koneksi, "INSERT INTO absensi (NIS, tanggal, jam_pulang, last_scan, status) VALUES ('$nis', '$tanggal', '$jam', '$waktu', 'Alpa')");
+                mysqli_query($koneksi, "INSERT INTO absensi (id_siswa, tanggal, jam_pulang, last_scan, status) VALUES ('$nis', '$tanggal', '$jam', '$waktu', 'Alpa')");
                 $jam_fmt = date('H:i', strtotime($jam));
                 $pesan = "Assalamu'alaikum Wr.Wb\n\nAnanda {$siswa['nama']} telah pulang pada pukul {$jam_fmt} namun tidak melakukan absen kehadiran di pagi hari.\n\n— [SMK AL-MALIKI]";
-                kirimWA($siswa['no_hp'], $pesan);
+                queueWA($siswa['no_hp'], $pesan);
                 $count_pulang++;
             } elseif (empty($data_absen['jam_pulang'])) {
-                mysqli_query($koneksi, "UPDATE absensi SET jam_pulang='$jam', last_scan='$waktu' WHERE NIS='$nis' AND tanggal='$tanggal'");
+                mysqli_query($koneksi, "UPDATE absensi SET jam_pulang='$jam', last_scan='$waktu' WHERE id_siswa='$nis' AND tanggal='$tanggal'");
                 $jam_fmt = date('H:i', strtotime($jam));
                 $pesan = "Assalamu'alaikum Wr.Wb\n\nAnanda {$siswa['nama']} telah pulang pada pukul {$jam_fmt}.\nSemoga selamat sampai rumah.\n\n— [SMK AL-MALIKI]";
-                kirimWA($siswa['no_hp'], $pesan);
+                queueWA($siswa['no_hp'], $pesan);
                 $count_pulang++;
             } else {
                 $count_skip++;

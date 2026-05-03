@@ -25,9 +25,9 @@ if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
     $filter_kelas = " AND d.kelas = '$kelas' ";
 }
 
-$sql = "SELECT d.NIS, d.nama, d.kelas, a.jam_datang, a.status, a.tanggal 
+$sql = "SELECT d.id_siswa, d.nama, d.kelas, a.jam_datang, a.status, a.tanggal 
         FROM data d 
-        LEFT JOIN absensi a ON d.NIS = a.NIS AND a.tanggal = '$tanggal' 
+        LEFT JOIN absensi a ON d.id_siswa = a.id_siswa AND a.tanggal = '$tanggal' 
         WHERE 1=1 $filter_kelas 
         ORDER BY d.kelas, d.nama";
 

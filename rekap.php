@@ -22,8 +22,28 @@ $end->modify('+1 day'); // Supaya tanggal akhir ikut terhitung
 $interval = DateInterval::createFromDateString('1 day');
 $period = new DatePeriod($start, $interval, $end);
 
+// Ambil hari aktif dari setting
+$q_hari = mysqli_query($koneksi, "SELECT hari FROM setting");
+$hari_aktif = [];
+while ($row_hari = mysqli_fetch_assoc($q_hari)) {
+    $hari_aktif[] = strtolower($row_hari['hari']);
+}
+
+$daftar_hari = [
+    1 => 'senin',
+    2 => 'selasa',
+    3 => 'rabu',
+    4 => 'kamis',
+    5 => 'jumat',
+    6 => 'sabtu',
+    7 => 'minggu'
+];
+
 foreach ($period as $dt) {
-    if ($dt->format('N') < 6) { // 1-5 adalah Senin-Jumat
+    $hari_inggris = $dt->format('N');
+    $hari_indonesia = $daftar_hari[$hari_inggris];
+    
+    if (in_array($hari_indonesia, $hari_aktif)) {
         $dates[] = $dt->format('Y-m-d');
     }
 }
@@ -34,17 +54,17 @@ if ($kelas_filter != '') {
     $kls = mysqli_real_escape_string($koneksi, $kelas_filter);
     $filter_sql = " WHERE kelas = '$kls' ";
 }
-$sql_siswa = "SELECT NIS, nama, kelas FROM data $filter_sql ORDER BY kelas, nama";
+$sql_siswa = "SELECT id_siswa, nama, kelas FROM data $filter_sql ORDER BY kelas, nama";
 $query_siswa = mysqli_query($koneksi, $sql_siswa);
 
 // 4. Ambil Data Absensi Rentang Tanggal
-$sql_absen = "SELECT NIS, tanggal, status FROM absensi WHERE tanggal >= '$tgl_awal' AND tanggal <= '$tgl_akhir'";
+$sql_absen = "SELECT id_siswa, tanggal, status FROM absensi WHERE tanggal >= '$tgl_awal' AND tanggal <= '$tgl_akhir'";
 $query_absen = mysqli_query($koneksi, $sql_absen);
 
 $data_absen = [];
 while ($row = mysqli_fetch_assoc($query_absen)) {
     // Kelompokkan dalam array: $data_absen[nis][tanggal]
-    $data_absen[$row['NIS']][$row['tanggal']] = $row['status'];
+    $data_absen[$row['id_siswa']][$row['tanggal']] = $row['status'];
 }
 
 // 5. Header dan Sidebar
@@ -226,6 +246,7 @@ include "sidebar.php";
                             </div>
                             <div class="col-md-4 mb-2">
                                 <label for="kelas" class="form-label">Kelas :</label>
+
                                 <select class="form-select" name="kelas" id="kelas">
                                     <option value="">-- Semua Kelas --</option>
                                     <?php
@@ -316,7 +337,7 @@ include "sidebar.php";
 
                                     $no = 1;
                                     while ($siswa = mysqli_fetch_assoc($query_siswa)) {
-                                        $nis = $siswa['NIS'];
+                                        $nis = $siswa['id_siswa'];
                                         $nama = $siswa['nama'];
 
                                         // $total_h = 0;

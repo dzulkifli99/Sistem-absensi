@@ -41,7 +41,7 @@ foreach ($logs as $log) {
   // cek siswa
   $cek_siswa = mysqli_query(
     $koneksi,
-    "SELECT * FROM data WHERE NIS='$nis'"
+    "SELECT * FROM data WHERE id_siswa='$nis'"
   );
   if (mysqli_num_rows($cek_siswa) == 0) continue;
 
@@ -53,7 +53,7 @@ foreach ($logs as $log) {
   $cek = mysqli_query(
     $koneksi,
     "SELECT * FROM absensi
-         WHERE NIS='$nis'
+         WHERE id_siswa='$nis'
          AND tanggal='$tanggal'"
   );
 
@@ -73,7 +73,7 @@ foreach ($logs as $log) {
       mysqli_query(
         $koneksi,
         "INSERT INTO absensi
-                (NIS,tanggal,jam_datang,status)
+                (id_siswa,tanggal,jam_datang,status)
                 VALUES
                 ('$nis','$tanggal','$jam','$status')"
       );
@@ -104,7 +104,7 @@ foreach ($logs as $log) {
       "UPDATE absensi
              SET jam_pulang='$jam',
                  status_pulang='Pulang'
-             WHERE NIS='$nis'
+             WHERE id_siswa='$nis'
              AND tanggal='$tanggal'"
     );
 
@@ -124,11 +124,11 @@ if (date('H:i') >= "08:00") {
   mysqli_query(
     $koneksi,
     "INSERT IGNORE INTO absensi
-        (NIS,tanggal,status)
-        SELECT NIS, CURDATE(), 'Alpa'
+        (id_siswa,tanggal,status)
+        SELECT id_siswa, CURDATE(), 'Alpa'
         FROM data
-        WHERE NIS NOT IN (
-            SELECT NIS
+        WHERE id_siswa NOT IN (
+            SELECT id_siswa
             FROM absensi
             WHERE tanggal=CURDATE()
         )"

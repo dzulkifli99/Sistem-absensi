@@ -33,12 +33,14 @@ if (isset($_POST['simpan'])) {
 
     $jam_masuk    = mysqli_real_escape_string($koneksi, $_POST['jam_masuk']);
     $batas_masuk  = mysqli_real_escape_string($koneksi, $_POST['batas_masuk']);
+    $toleransi_terlambat = (int)$_POST['toleransi_terlambat'];
     $jam_pulang   = mysqli_real_escape_string($koneksi, $_POST['jam_pulang']);
     $batas_pulang = mysqli_real_escape_string($koneksi, $_POST['batas_pulang']);
 
     $update = mysqli_query($koneksi, "UPDATE setting SET
         jam_masuk='$jam_masuk',
         batas_masuk='$batas_masuk',
+        toleransi_terlambat=$toleransi_terlambat,
         jam_pulang='$jam_pulang',
         batas_pulang='$batas_pulang'
         WHERE id='$id'
@@ -83,6 +85,13 @@ if (isset($_POST['simpan'])) {
                     <label>Batas Masuk</label>
                     <input type="time" name="batas_masuk"
                         value="<?= $data['batas_masuk']; ?>"
+                        class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label>Toleransi Terlambat (Menit)</label>
+                    <input type="number" name="toleransi_terlambat"
+                        value="<?= $data['toleransi_terlambat']; ?>"
                         class="form-control" required>
                 </div>
 

@@ -30,7 +30,7 @@ foreach ($devices as $dev) {
 
         // Kirim data tiap siswa ke mesin
         foreach ($siswa_data as $row) {
-            $nis = $row['NIS'];
+            $nis = $row['id_siswa'];
             $nama = $row['nama'];
             
             // setUser(uid, userid, name, password, role)

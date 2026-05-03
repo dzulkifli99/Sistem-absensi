@@ -15,9 +15,9 @@ if (session_status() === PHP_SESSION_NONE) {
 </head>
 
 <body>
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+    <nav class="sb-topnav navbar navbar-expand navbar-light bg-white shadow-sm">
         <!-- Navbar Brand-->
-        <a class="navbar-brand ps-3" href="dashboard.php">SMK Al-Maliki</a>
+        <a class="navbar-brand ps-3 fw-bold text-primary" href="dashboard.php">SMK Al-Maliki</a>
         <!-- Sidebar Toggle-->
         <button
             class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0"

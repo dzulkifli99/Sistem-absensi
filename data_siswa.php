@@ -1,6 +1,8 @@
 <?php
+session_start();
 include "header.php";
 include "sidebar.php";
+include "koneksi.php";
 ?>
 
 <!DOCTYPE html>
@@ -75,24 +77,36 @@ include "sidebar.php";
         </script>
 
         <div class="card mb-4">
-          <div class="card-header">
-
-            <button type="button" class="btn btn-outline-info float-end ms-2" onclick="kirimKeMesin()">
-              <i class="fa-solid fa-upload"></i> Kirim ke Mesin
-            </button>
-
-            <button type="button" class="btn btn-outline-primary float-end ms-2" data-bs-toggle="modal" data-bs-target="#modalTambah">
-              <i class="fa-solid fa-user-plus"></i> Tambah
-            </button>
-
-            <button type="button" class="btn btn-outline-success float-end" onclick="pilihFile()">
-              <i class="fa-solid fa-file-excel"></i> Import Data
-            </button>
-
-            <a href="download_template.php" class="btn btn-outline-secondary float-end me-2">
-              <i class="fa-solid fa-download"></i> Download Template
-            </a>
-
+          <div class="card-header bg-white p-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+              <h5 class="m-0 font-weight-bold text-primary"><i class="fas fa-table me-1"></i> Data Seluruh Siswa</h5>
+              <div class="btn-toolbar" role="toolbar">
+                <div class="btn-group me-2" role="group">
+                  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambah">
+                    <i class="fa-solid fa-user-plus"></i> Tambah
+                  </button>
+                  <button type="button" class="btn btn-info text-white" onclick="kirimKeMesin()">
+                    <i class="fa-solid fa-upload"></i> Ke Mesin
+                  </button>
+                </div>
+                <div class="btn-group me-2" role="group">
+                  <button type="button" class="btn btn-success" onclick="pilihFile()">
+                    <i class="fa-solid fa-file-import"></i> Import
+                  </button>
+                  <a href="download_template.php" class="btn btn-outline-success">
+                    <i class="fa-solid fa-download"></i> Template
+                  </a>
+                </div>
+                <div class="btn-group" role="group">
+                  <a href="export_excel.php" class="btn btn-success">
+                    <i class="fa-solid fa-file-excel"></i> Excel
+                  </a>
+                  <a href="cetak_pdf.php" target="_blank" class="btn btn-danger">
+                    <i class="fa-solid fa-file-pdf"></i> PDF
+                  </a>
+                </div>
+              </div>
+            </div>
             <form id="formImport" action="import.data.php" method="POST" enctype="multipart/form-data">
               <input type="file" id="inputHidden" name="file_excel" accept=".xlsx,.xls,.csv" style="display:none;" onchange="submitOtomatis()">
             </form>
@@ -106,7 +120,6 @@ include "sidebar.php";
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="data_siswa.php">Semua Kelas</a></li>
                 <?php
-                include "koneksi.php";
                 $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
                 $q_k = mysqli_query($koneksi, $sql_k);
                 if ($q_k) {
@@ -118,22 +131,23 @@ include "sidebar.php";
               </ul>
               <thead>
                 <tr>
-                  <th>no</th>
-                  <th>NIS</th>
-                  <th>Nama</th>
+                  <th>No</th>
+                  <th>ID Sistem</th>
+                  <th>Nama Lengkap</th>
                   <th>Kelas</th>
                   <th>No HP</th>
-                  <th>aksi</th>
+                  <th width="120">Aksi</th>
                 </tr>
               </thead>
 
               <tbody>
-                <?php // include "koneksi.php"; // sudah di include di atas
+                <?php
                 $sql = "SELECT * FROM data";
                 if (isset($_GET['kelas']) && $_GET['kelas'] != '') {
                   $kls = mysqli_real_escape_string($koneksi, $_GET['kelas']);
                   $sql .= " WHERE kelas = '$kls'";
                 }
+
                 $sql .= " ORDER BY kelas ASC, nama ASC";
                 $query = mysqli_query($koneksi, $sql);
                 if (!$query) {
@@ -144,22 +158,27 @@ include "sidebar.php";
                 ?>
                   <tr>
                     <td><?= $no++; ?></td>
-                    <td><?= $dt_siswa['NIS']; ?></td>
-                    <td><?= $dt_siswa['nama']; ?></td>
+                    <td><?= $dt_siswa['id_siswa']; ?></td>
+                    <td><?= htmlspecialchars($dt_siswa['nama']); ?></td>
                     <td><?= $dt_siswa['kelas']; ?></td>
                     <td><?= $dt_siswa['no_hp']; ?></td>
                     <td>
                       <button type="button"
                         class="btn btn-warning btn-sm btn-edit"
-                        data-id="<?php echo $dt_siswa['NIS']; ?>"
-                        data-nama="<?php echo $dt_siswa['nama']; ?>"
-                        data-kelas="<?php echo $dt_siswa['kelas']; ?>"
-                        data-hp="<?php echo $dt_siswa['no_hp']; ?>">
+                        data-id="<?php echo $dt_siswa['id_siswa']; ?>"
+                        data-nis="<?php echo htmlspecialchars($dt_siswa['nis']); ?>"
+                        data-nisn="<?php echo htmlspecialchars($dt_siswa['nisn']); ?>"
+                        data-ttl="<?php echo htmlspecialchars($dt_siswa['tempat_tgl_lahir']); ?>"
+                        data-nik="<?php echo htmlspecialchars($dt_siswa['nik']); ?>"
+                        data-alamat="<?php echo htmlspecialchars($dt_siswa['alamat']); ?>"
+                        data-nama="<?php echo htmlspecialchars($dt_siswa['nama']); ?>"
+                        data-kelas="<?php echo htmlspecialchars($dt_siswa['kelas']); ?>"
+                        data-hp="<?php echo htmlspecialchars($dt_siswa['no_hp']); ?>">
                         <i class="fa-solid fa-pen"></i>
                       </button>
                       <button type="button"
                         class="btn btn-danger btn-sm"
-                        onclick="konfirmasiHapus('<?= $dt_siswa['NIS']; ?>', this)">
+                        onclick="konfirmasiHapus('<?= $dt_siswa['id_siswa']; ?>', this)">
                         <i class="fas fa-trash"></i>
                       </button>
                     </td>
@@ -181,26 +200,52 @@ include "sidebar.php";
             </div>
             <form id="formTambah">
               <div class="modal-body">
-                <div class="mb-3">
-                  <label for="nis" class="form-label fw-bold">NIS</label>
-                  <input type="number" class="form-control" id="nis" name="nis" required placeholder="Masukkan NIS">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="id_siswa" class="form-label fw-bold">ID Sistem (Unique)</label>
+                    <input type="text" class="form-control" id="id_siswa" name="id_siswa" required placeholder="Contoh: 10001">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="nis" class="form-label fw-bold">NIS Sekolah</label>
+                    <input type="text" class="form-control" id="nis" name="nis" placeholder="Masukkan NIS Sekolah">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="nisn" class="form-label fw-bold">NISN</label>
+                    <input type="text" class="form-control" id="nisn" name="nisn" placeholder="Masukkan NISN">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="nama" class="form-label fw-bold">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="nama" name="nama" required placeholder="Masukkan Nama Siswa">
+                  </div>
                 </div>
                 <div class="mb-3">
-                  <label for="nama" class="form-label fw-bold">Nama Lengkap</label>
-                  <input type="text" class="form-control" id="nama" name="nama" required placeholder="Masukkan Nama Siswa">
+                  <label for="tempat_tgl_lahir" class="form-label fw-bold">Tempat, Tgl Lahir</label>
+                  <input type="text" class="form-control" id="tempat_tgl_lahir" name="tempat_tgl_lahir" placeholder="Contoh: Jakarta, 12 Jan 2007">
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="nik" class="form-label fw-bold">NIK</label>
+                    <input type="text" class="form-control" id="nik" name="nik" placeholder="Masukkan NIK">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="no_hp" class="form-label fw-bold">No HP Orang Tua</label>
+                    <input type="text" class="form-control" id="no_hp" name="no_hp" placeholder="Contoh: 081234...">
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="kelas" class="form-label fw-bold">Kelas</label>
                   <input type="text" class="form-control" id="kelas" name="kelas" required placeholder="Contoh: 10 TKJ 1">
                 </div>
                 <div class="mb-3">
-                  <label for="no_hp" class="form-label fw-bold">No HP</label>
-                  <input type="text" class="form-control" id="no_hp" name="no_hp" placeholder="Contoh: 081234...">
+                  <label for="alamat" class="form-label fw-bold">Alamat Lengkap</label>
+                  <textarea class="form-control" id="alamat" name="alamat" rows="2" placeholder="Masukkan alamat lengkap siswa"></textarea>
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="btnSimpanTambah" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan</button>
+                <button type="button" id="btnSimpanTambah" class="btn btn-primary shadow-sm"><i class="fa-solid fa-save me-1"></i> Simpan Data Siswa</button>
               </div>
             </form>
           </div>
@@ -218,26 +263,52 @@ include "sidebar.php";
             <form id="formEdit">
               <div class="modal-body">
                 <input type="hidden" id="edit_nis_lama" name="nis_lama">
-                <div class="mb-3">
-                  <label for="edit_nis" class="form-label fw-bold">NIS</label>
-                  <input type="number" class="form-control" id="edit_nis" name="nis" required>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_id_siswa" class="form-label fw-bold">ID Sistem</label>
+                    <input type="text" class="form-control" id="edit_id_siswa" name="id_siswa" required>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_nis" class="form-label fw-bold">NIS Sekolah</label>
+                    <input type="text" class="form-control" id="edit_nis" name="nis">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_nisn" class="form-label fw-bold">NISN</label>
+                    <input type="text" class="form-control" id="edit_nisn" name="nisn">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_nama" class="form-label fw-bold">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="edit_nama" name="nama" required>
+                  </div>
                 </div>
                 <div class="mb-3">
-                  <label for="edit_nama" class="form-label fw-bold">Nama Lengkap</label>
-                  <input type="text" class="form-control" id="edit_nama" name="nama" required>
+                  <label for="edit_tempat_tgl_lahir" class="form-label fw-bold">Tempat, Tgl Lahir</label>
+                  <input type="text" class="form-control" id="edit_tempat_tgl_lahir" name="tempat_tgl_lahir">
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_nik" class="form-label fw-bold">NIK</label>
+                    <input type="text" class="form-control" id="edit_nik" name="nik">
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="edit_no_hp" class="form-label fw-bold">No HP Orang Tua</label>
+                    <input type="text" class="form-control" id="edit_no_hp" name="no_hp">
+                  </div>
                 </div>
                 <div class="mb-3">
                   <label for="edit_kelas" class="form-label fw-bold">Kelas</label>
                   <input type="text" class="form-control" id="edit_kelas" name="kelas" required>
                 </div>
                 <div class="mb-3">
-                  <label for="edit_no_hp" class="form-label fw-bold">No HP</label>
-                  <input type="text" class="form-control" id="edit_no_hp" name="no_hp">
+                  <label for="edit_alamat" class="form-label fw-bold">Alamat Lengkap</label>
+                  <textarea class="form-control" id="edit_alamat" name="alamat" rows="2"></textarea>
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" id="btnSimpanEdit" class="btn btn-primary"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
+                <button type="button" id="btnSimpanEdit" class="btn btn-warning"><i class="fa-solid fa-save me-1"></i> Simpan Perubahan</button>
               </div>
             </form>
           </div>
@@ -275,7 +346,10 @@ include "sidebar.php";
   <script>
     // ── Helper: kirim form via AJAX, return Promise JSON ─────────────────────
     function ajaxPost(url, formData) {
-      return fetch(url, { method: 'POST', body: formData })
+      return fetch(url, {
+          method: 'POST',
+          body: formData
+        })
         .then(res => {
           if (!res.ok) throw new Error('HTTP ' + res.status);
           return res.json();
@@ -286,7 +360,7 @@ include "sidebar.php";
     function konfirmasiHapus(id, elemen) {
       Swal.fire({
         title: 'Apakah anda yakin?',
-        text: "Data NIS " + id + " akan dihapus permanen!",
+        text: "Data id_siswa " + id + " akan dihapus permanen!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
@@ -319,11 +393,14 @@ include "sidebar.php";
     }
 
     // ── TAMBAH ────────────────────────────────────────────────────────────────
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
-      document.getElementById('btnSimpanTambah').addEventListener('click', function () {
+      document.getElementById('btnSimpanTambah').addEventListener('click', function() {
         const form = document.getElementById('formTambah');
-        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
 
         const fd = new FormData(form);
         fd.append('tambah', '1');
@@ -348,7 +425,11 @@ include "sidebar.php";
               bootstrap.Modal.getInstance(document.getElementById('modalTambah')).hide();
               form.reset();
             } else {
-              Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+              Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                html: data.message
+              });
             }
           })
           .catch(err => Swal.fire('Error!', err.message, 'error'))
@@ -360,22 +441,30 @@ include "sidebar.php";
 
       // ── EDIT ───────────────────────────────────────────────────────────────
       // Isi modal edit via event delegation (Simple-DataTables re-render DOM)
-      document.body.addEventListener('click', function (e) {
+      document.body.addEventListener('click', function(e) {
         const btn = e.target.closest('.btn-edit');
         if (!btn) return;
 
         document.getElementById('edit_nis_lama').value = btn.dataset.id;
-        document.getElementById('edit_nis').value      = btn.dataset.id;
-        document.getElementById('edit_nama').value     = btn.dataset.nama;
-        document.getElementById('edit_kelas').value    = btn.dataset.kelas;
-        document.getElementById('edit_no_hp').value    = btn.dataset.hp;
+        document.getElementById('edit_id_siswa').value = btn.dataset.id;
+        document.getElementById('edit_nis').value = btn.dataset.nis;
+        document.getElementById('edit_nisn').value = btn.dataset.nisn;
+        document.getElementById('edit_nama').value = btn.dataset.nama;
+        document.getElementById('edit_tempat_tgl_lahir').value = btn.dataset.ttl;
+        document.getElementById('edit_nik').value = btn.dataset.nik;
+        document.getElementById('edit_no_hp').value = btn.dataset.hp;
+        document.getElementById('edit_kelas').value = btn.dataset.kelas;
+        document.getElementById('edit_alamat').value = btn.dataset.alamat;
 
         new bootstrap.Modal(document.getElementById('modalEdit')).show();
       });
 
-      document.getElementById('btnSimpanEdit').addEventListener('click', function () {
+      document.getElementById('btnSimpanEdit').addEventListener('click', function() {
         const form = document.getElementById('formEdit');
-        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
 
         const fd = new FormData(form);
         fd.append('edit', '1');
@@ -398,7 +487,11 @@ include "sidebar.php";
 
               bootstrap.Modal.getInstance(document.getElementById('modalEdit')).hide();
             } else {
-              Swal.fire({ icon: 'error', title: 'Gagal!', html: data.message });
+              Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                html: data.message
+              });
             }
           })
           .catch(err => Swal.fire('Error!', err.message, 'error'))
@@ -511,7 +604,9 @@ include "sidebar.php";
         cancelButtonText: 'Batal',
         showLoaderOnConfirm: true,
         preConfirm: () => {
-          return fetch('tambah.php', { method: 'POST' })
+          return fetch('tambah.php', {
+              method: 'POST'
+            })
             .then(response => {
               if (!response.ok) throw new Error(response.statusText);
               return response.json();
@@ -536,6 +631,50 @@ include "sidebar.php";
               text: result.value.message,
             });
           }
+        }
+      });
+    }
+
+    // ── INPUT IZIN/SAKIT (UNTUK WALI KELAS) ──────────────────────────────────
+    function inputIzin(nis, nama) {
+      Swal.fire({
+        title: 'Input Keterangan Absensi',
+        html: `Atur status kehadiran hari ini untuk:<br><b>${nama}</b> (${nis})`,
+        input: 'select',
+        inputOptions: {
+          'Izin': 'Izin',
+          'Sakit': 'Sakit'
+        },
+        inputPlaceholder: 'Pilih Keterangan',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-save"></i> Simpan Status',
+        cancelButtonText: 'Batal',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Anda harus memilih keterangan!'
+          }
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const status = result.value;
+          const formData = new FormData();
+          formData.append('proses', 'input_izin');
+          formData.append('nis', nis);
+          formData.append('status', status);
+
+          fetch('aksi_siswa.php', {
+              method: 'POST',
+              body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'success') {
+                Swal.fire('Berhasil!', data.message, 'success');
+              } else {
+                Swal.fire('Gagal!', data.message, 'error');
+              }
+            })
+            .catch(err => Swal.fire('Error!', 'Tidak dapat menghubungi server', 'error'));
         }
       });
     }

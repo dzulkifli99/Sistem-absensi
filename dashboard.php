@@ -10,8 +10,6 @@ include "koneksi.php";
 
 include "sidebar.php";
 
-
-
 $tgl_sekarang = date('Y-m-d');
 $q_hadir = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND (status='Hadir' )");
 $res_hadir = mysqli_fetch_assoc($q_hadir);
@@ -21,7 +19,7 @@ $q_telat = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tan
 $res_telat = mysqli_fetch_assoc($q_telat);
 $jml_telat = $res_telat['jml'];
 
-$q_izin = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='izin')");
+$q_izin = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='izin' OR status='sakit')");
 $res_izin = mysqli_fetch_assoc($q_izin);
 $jml_izin = $res_izin['jml'];
 
@@ -173,7 +171,7 @@ $jml_alpa = $res_alpa['jml'];
 
           $sql = "
 SELECT 
-d.NIS,
+d.id_siswa,
 d.nama,
 d.kelas,
 a.jam_datang,
@@ -182,7 +180,7 @@ a.tanggal,
 a.status
 FROM data d
 LEFT JOIN absensi a 
-ON d.NIS = a.NIS 
+ON d.id_siswa = a.id_siswa 
 AND a.tanggal = '$tanggal'
 $filter_kelas
 ORDER BY d.kelas, d.nama
@@ -203,7 +201,6 @@ ORDER BY d.kelas, d.nama
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="dashboard.php">Semua Kelas</a></li>
                 <?php
-                include "koneksi.php";
                 $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
                 $q_k = mysqli_query($koneksi, $sql_k);
                 if ($q_k) {
@@ -216,7 +213,7 @@ ORDER BY d.kelas, d.nama
               <thead>
                 <tr>
                   <th>No</th>
-                  <th>NIS</th>
+                  <th>ID Sistem</th>
                   <th>Nama</th>
                   <th>Kelas</th>
                   <th>Jam datang</th>
@@ -241,7 +238,7 @@ ORDER BY d.kelas, d.nama
 
                   <tr>
                     <td><?= $no++ ?></td>
-                    <td><?= $row['NIS'] ?></td>
+                    <td><?= $row['id_siswa'] ?></td>
                     <td><?= $row['nama'] ?></td>
                     <td><?= $row['kelas'] ?></td>
                     <td><?= $row['jam_datang'] ?: '-' ?></td>
@@ -249,7 +246,7 @@ ORDER BY d.kelas, d.nama
                     <td><?= date('d-m-Y', strtotime($tanggal)) ?></td>
                     <td><span class="badge bg-<?= $bg_color ?>"><?= $status ?></span></td>
                     <!-- <td>
-                      <a href="form.php?id=<?php echo $row['NIS']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
+                      <a href="form.php?id=<?php echo $row['id_siswa']; ?>" class="btn btn-warning btn-sm"><i class="fa-solid fa-pen me-2"></i></a>
                     </td> -->
                   </tr>
 

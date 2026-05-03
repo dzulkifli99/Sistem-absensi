@@ -14,11 +14,11 @@ $q_telat = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tan
 $res_telat = mysqli_fetch_assoc($q_telat);
 $jml_telat = $res_telat['jml'];
 
-$q_izin = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='izin')");
+$q_izin = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='Izin')");
 $res_izin = mysqli_fetch_assoc($q_izin);
 $jml_izin = $res_izin['jml'];
 
-$q_alpa = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='alpa')");
+$q_alpa = mysqli_query($koneksi, "SELECT COUNT(*) as jml FROM absensi WHERE tanggal='$tgl_sekarang' AND ( status='Alpa')");
 $res_alpa = mysqli_fetch_assoc($q_alpa);
 $jml_alpa = $res_alpa['jml'];
 
@@ -152,14 +152,20 @@ $jml_alpa = $res_alpa['jml'];
                         <div class="d-flex justify-content-between align-items-center">
                             <div><i class="fas fa-table me-1"></i> Data Kehadiran Siswa (Publik)</div>
                             <div class="dropdown">
-                                <button type="button" class="btn btn-outline-secondary dropdown-toggle btn-sm" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button type="button" class="btn btn-outline-secondary dropdown-toggle float-end " data-bs-toggle="dropdown" aria-expanded="false">
                                     Cari Kelas
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end">
+                                <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="index.php">Semua Kelas</a></li>
-                                    <li><a class="dropdown-item" href="index.php?kelas=10">Kelas 10</a></li>
-                                    <li><a class="dropdown-item" href="index.php?kelas=11">Kelas 11</a></li>
-                                    <li><a class="dropdown-item" href="index.php?kelas=12">Kelas 12</a></li>
+                                    <?php
+                                    $sql_k = "SELECT DISTINCT kelas FROM data ORDER BY kelas ASC";
+                                    $q_k = mysqli_query($koneksi, $sql_k);
+                                    if ($q_k) {
+                                        while ($rk = mysqli_fetch_array($q_k)) {
+                                            echo '<li><a class="dropdown-item" href="index.php?kelas=' . urlencode($rk['kelas']) . '">' . htmlspecialchars($rk['kelas']) . '</a></li>';
+                                        }
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                         </div>
@@ -177,7 +183,7 @@ $jml_alpa = $res_alpa['jml'];
 
                     $sql = "
 SELECT 
-d.NIS,
+d.id_siswa,
 d.nama,
 d.kelas,
 a.jam_datang,
@@ -186,7 +192,7 @@ a.tanggal,
 a.status
 FROM data d
 LEFT JOIN absensi a 
-ON d.NIS = a.NIS 
+ON d.id_siswa = a.id_siswa 
 AND a.tanggal = '$tanggal'
 $filter_kelas
 ORDER BY d.kelas, d.nama
@@ -205,7 +211,7 @@ ORDER BY d.kelas, d.nama
                             <thead>
                                 <tr>
                                     <th>No</th>
-                                    <th>NIS</th>
+                                    <th>ID Sistem</th>
                                     <th>Nama</th>
                                     <th>Kelas</th>
                                     <th>Jam datang</th>
@@ -232,7 +238,7 @@ ORDER BY d.kelas, d.nama
 
                                     <tr>
                                         <td><?= $no++ ?></td>
-                                        <td><?= $row['NIS'] ?></td>
+                                        <td><?= $row['id_siswa'] ?></td>
                                         <td><?= $row['nama'] ?></td>
                                         <td><?= $row['kelas'] ?></td>
                                         <td><?= $row['jam_datang'] ?: '-' ?></td>

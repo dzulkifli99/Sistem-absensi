@@ -64,28 +64,43 @@ $errors     = [];
 
 for ($baris = 2; $baris <= $highestRow; $baris++) {
 
-    $nis   = trim((string) $sheet->getCell('A' . $baris)->getValue());
-    $nama  = trim((string) $sheet->getCell('B' . $baris)->getValue());
-    $kelas = trim((string) $sheet->getCell('C' . $baris)->getValue());
-    $no_hp = trim((string) $sheet->getCell('D' . $baris)->getValue());
+    $id_siswa = trim((string) $sheet->getCell('A' . $baris)->getValue());
+    $nis      = trim((string) $sheet->getCell('B' . $baris)->getValue());
+    $nisn     = trim((string) $sheet->getCell('C' . $baris)->getValue());
+    $nama     = trim((string) $sheet->getCell('D' . $baris)->getValue());
+    $ttl      = trim((string) $sheet->getCell('E' . $baris)->getValue());
+    $nik      = trim((string) $sheet->getCell('F' . $baris)->getValue());
+    $alamat   = trim((string) $sheet->getCell('G' . $baris)->getValue());
+    $kelas    = trim((string) $sheet->getCell('H' . $baris)->getValue());
+    $no_hp    = trim((string) $sheet->getCell('I' . $baris)->getValue());
 
-    // Lewati baris yang NIS-nya kosong
-    if ($nis === '') {
+    // Lewati baris yang id_siswa-nya kosong
+    if ($id_siswa === '') {
         $dilewati++;
         continue;
     }
 
-    $nis   = mysqli_real_escape_string($koneksi, $nis);
-    $nama  = mysqli_real_escape_string($koneksi, $nama);
-    $kelas = mysqli_real_escape_string($koneksi, $kelas);
-    $no_hp = mysqli_real_escape_string($koneksi, $no_hp);
+    $id_siswa = mysqli_real_escape_string($koneksi, $id_siswa);
+    $nis      = mysqli_real_escape_string($koneksi, $nis);
+    $nisn     = mysqli_real_escape_string($koneksi, $nisn);
+    $nama     = mysqli_real_escape_string($koneksi, $nama);
+    $ttl      = mysqli_real_escape_string($koneksi, $ttl);
+    $nik      = mysqli_real_escape_string($koneksi, $nik);
+    $alamat   = mysqli_real_escape_string($koneksi, $alamat);
+    $kelas    = mysqli_real_escape_string($koneksi, $kelas);
+    $no_hp    = mysqli_real_escape_string($koneksi, $no_hp);
 
-    $sql = "INSERT INTO data (NIS, nama, kelas, no_hp)
-            VALUES ('$nis', '$nama', '$kelas', '$no_hp')
+    $sql = "INSERT INTO data (id_siswa, nis, nisn, nama, tempat_tgl_lahir, nik, alamat, kelas, no_hp)
+            VALUES ('$id_siswa', '$nis', '$nisn', '$nama', '$ttl', '$nik', '$alamat', '$kelas', '$no_hp')
             ON DUPLICATE KEY UPDATE
-                nama  = VALUES(nama),
-                kelas = VALUES(kelas),
-                no_hp = VALUES(no_hp)";
+                nis              = VALUES(nis),
+                nisn             = VALUES(nisn),
+                nama             = VALUES(nama),
+                tempat_tgl_lahir = VALUES(tempat_tgl_lahir),
+                nik              = VALUES(nik),
+                alamat           = VALUES(alamat),
+                kelas            = VALUES(kelas),
+                no_hp            = VALUES(no_hp)";
 
     if (mysqli_query($koneksi, $sql)) {
         $affected = mysqli_affected_rows($koneksi);
@@ -95,7 +110,7 @@ for ($baris = 2; $baris <= $highestRow; $baris++) {
             $berhasil++;
         }
     } else {
-        $errors[] = "Baris $baris (NIS: $nis): " . mysqli_error($koneksi);
+        $errors[] = "Baris $baris (id_siswa: $id_siswa): " . mysqli_error($koneksi);
     }
 }
 
