@@ -149,12 +149,22 @@ $jml_alpa = $res_alpa['jml'];
 
 
         <div class="card mb-4">
-          <div class="card-header">
+          <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-              <button id="btnSync" class="btn btn-primary shadow-sm float-end" onclick="jalankanSync()">
+              <i class="fas fa-table me-1"></i> Data Kehadiran Hari Ini
+              <?php
+              $last_sync_file = "last_sync.log";
+              if (file_exists($last_sync_file)) {
+                $last_sync_time = file_get_contents($last_sync_file);
+                echo '<span class="badge bg-light text-dark border ms-2 shadow-sm"><i class="fa-solid fa-robot text-primary me-1"></i> Auto-Sync Terakhir: ' . $last_sync_time . '</span>';
+              }
+              ?>
+            </div>
+            <div>
+              <button id="btnSync" class="btn btn-primary shadow-sm" onclick="jalankanSync()">
                 <i class="fas fa-sync-alt me-1"></i> Sinkronkan Mesin
               </button>
-              <span id="syncStatus" class="ms-2 text-muted float-end" style="display:none;">Sedang menarik data...</span>
+              <span id="syncStatus" class="ms-2 text-muted" style="display:none;">Sedang menarik data...</span>
             </div>
           </div>
 
