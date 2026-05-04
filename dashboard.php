@@ -220,7 +220,7 @@ ORDER BY d.kelas, d.nama
                 }
                 ?>
               </ul>
-              <thead>
+              <thead>  
                 <tr>
                   <th>No</th>
                   <th>ID Sistem</th>

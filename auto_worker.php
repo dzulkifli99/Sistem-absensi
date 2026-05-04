@@ -136,7 +136,7 @@ if (!array_key_exists($hari_inggris, $daftar_hari)) {
     }
 }
 
-// --- 4. KIRIM SEMUA ANTREAN WA ---
+// --- 4. KIRIM SEMUA ANTREAN WA --
 echo "Memproses antrean WhatsApp...\n";
 $q_wa = mysqli_query($koneksi, "SELECT * FROM wa_queue WHERE status = 'pending' ORDER BY id ASC");
 $count_sent = 0;
